@@ -1,9 +1,12 @@
-<?php echo form_open('config/save_mailchimp/', array('id' => 'mailchimp_config_form', 'enctype' => 'multipart/form-data', 'class' => 'form-horizontal')); ?>
+<?php echo form_open('config/save_integrations/', array('id' => 'integrations_config_form', 'enctype' => 'multipart/form-data', 'class' => 'form-horizontal')); ?>
 	<div id="config_wrapper">
 		<fieldset id="config_info">
 			<div id="required_fields_message"><?php echo $this->lang->line('common_fields_required_message'); ?></div>
+			<ul id="integrations_error_message_box" class="error_message_box"></ul>
+
+
+<!-- Mailchimp Integration -->
 			<div id="integrations_header"><?php echo $this->lang->line('config_mailchimp_configuration')?></div>
-			<ul id="mailchimp_error_message_box" class="error_message_box"></ul>
 
 			<div class="form-group form-group-sm">
 				<?php echo form_label($this->lang->line('config_mailchimp_api_key'), 'mailchimp_api_key', array('class' => 'control-label col-xs-2')); ?>
@@ -37,11 +40,152 @@
 				</div>
 			</div>
 
-			<?php echo form_submit(array(
-				'name' => 'submit_mailchimp',
-				'id' => 'submit_mailchimp',
-				'value' => $this->lang->line('common_submit'),
-				'class' => 'btn btn-primary btn-sm pull-right')); ?>
+<!-- CLCdesq Integration -->				
+			<div id="integrations_header"><?php echo $this->lang->line('config_clcdesq_configuration')?></div>
+
+			<div class="form-group form-group-sm">
+				<?php echo form_label($this->lang->line('config_clcdesq_api_key'), 'clcdesq_api_key', array('class' => 'control-label col-xs-2')); ?>
+				<div class="col-xs-4">
+					<div class="input-group">
+						<span class="input-group-addon input-sm"><span class="glyphicon glyphicon-cloud"></span></span>
+						<?php echo form_input(array(
+							'name' => 'clcdesq_api_key',
+							'id' => 'clcdesq_api_key',
+							'class' => 'form-control input-sm',
+							'value' => $clcdesq['api_key'])); ?>
+					</div>
+				</div>
+			</div>
+
+			<div class="form-group form-group-sm">
+				<?php echo form_label($this->lang->line('config_clcdesq_api_url'), 'clcdesq_api_url', array('class' => 'control-label col-xs-2')); ?>
+				<div class="col-xs-4">
+					<div class="input-group">
+						<span class="input-group-addon input-sm"><span class="glyphicon glyphicon-cloud"></span></span>
+						<?php echo form_input(array(
+							'name' => 'clcdesq_api_url',
+							'id' => 'clcdesq_api_url',
+							'class' => 'form-control input-sm',
+							'value' => $clcdesq['api_url'])); ?>
+					</div>
+				</div>
+			</div>
+			
+			<div class="form-group form-group-sm"><?php echo form_label($this->lang->line('config_clcdesq_source'), 'clcdesq_clcdesqsource_id', array('class' => 'control-label col-xs-2','style' => 'text-decoration:underline;')); ?></div>			
+			<div class="form-group form-group-sm">
+				<?php echo form_label($this->lang->line('config_clcdesq_authorstext'), 'clcdesq_authorstext_id', array('class' => 'control-label col-xs-2')); ?>
+				<div class='col-xs-4'>
+					<div class="input-group">
+						<span class="input-group-addon input-sm"><span class="glyphicon glyphicon-user"></span></span>
+						<?php echo form_dropdown('clcdesq_authorstext_id',
+							$clcdesq['available_attributes'],
+							$clcdesq['authorstext_attribute'],
+							array('id' => 'clcdesq_authorstext_id', 'class' => 'form-control input-sm')); 
+						?>
+					</div>
+				</div>
+			</div>
+
+			<div class="form-group form-group-sm">
+				<?php echo form_label($this->lang->line('config_clcdesq_binding'), 'clcdesq_binding_id', array('class' => 'control-label col-xs-2')); ?>
+				<div class='col-xs-4'>
+					<div class="input-group">
+						<span class="input-group-addon input-sm"><span class="glyphicon glyphicon-book"></span></span>
+						<?php echo form_dropdown('clcdesq_binding_id',
+							$clcdesq['available_attributes'],
+							$clcdesq['binding_attribute'],
+							array('id' => 'clcdesq_binding_id', 'class' => 'form-control input-sm')); ?>
+					</div>
+				</div>
+			</div>
+
+			<div class="form-group form-group-sm">
+				<?php echo form_label($this->lang->line('config_clcdesq_originaltitle'), 'clcdesq_originaltitle_id', array('class' => 'control-label col-xs-2')); ?>
+				<div class='col-xs-4'>
+					<div class="input-group">
+						<span class="input-group-addon input-sm"><span class="glyphicon glyphicon-text-size"></span></span>
+						<?php echo form_dropdown('clcdesq_originaltitle_id',
+							$clcdesq['available_attributes'],
+							$clcdesq['originaltitle_attribute'],
+							array('id' => 'clcdesq_originaltitle_id', 'class' => 'form-control input-sm')); ?>
+					</div>
+				</div>
+			</div>
+
+			<div class="form-group form-group-sm">
+				<?php echo form_label($this->lang->line('config_clcdesq_publisher'), 'clcdesq_publisher_id', array('class' => 'control-label col-xs-2')); ?>
+				<div class='col-xs-4'>
+					<div class="input-group">
+						<span class="input-group-addon input-sm"><span class="glyphicon glyphicon-print"></span></span>
+						<?php echo form_dropdown('clcdesq_publisher_id',
+							$clcdesq['available_attributes'],
+							$clcdesq['publisher_attribute'],
+							array('id' => 'clcdesq_publisher_id', 'class' => 'form-control input-sm')); ?>
+					</div>
+				</div>
+			</div>
+
+			<div class="form-group form-group-sm">
+				<?php echo form_label($this->lang->line('config_clcdesq_weight'), 'clcdesq_weight_id', array('class' => 'control-label col-xs-2')); ?>
+				<div class='col-xs-4'>
+					<div class="input-group">
+						<span class="input-group-addon input-sm"><span class="glyphicon glyphicon-scale"></span></span>
+						<?php echo form_dropdown('clcdesq_weight_id',
+							$clcdesq['available_attributes'],
+							$clcdesq['weight_attribute'],
+							array('id' => 'clcdesq_weight_id', 'class' => 'form-control input-sm')); ?>
+					</div>
+				</div>
+			</div>
+
+			<div class="form-group form-group-sm">
+				<?php echo form_label($this->lang->line('config_clcdesq_width'), 'clcdesq_width_id', array('class' => 'control-label col-xs-2')); ?>
+				<div class='col-xs-4'>
+					<div class="input-group">
+						<span class="input-group-addon input-sm"><span class="glyphicon glyphicon-indent-right"></span></span>
+						<?php echo form_dropdown('clcdesq_width_id',
+							$clcdesq['available_attributes'],
+							$clcdesq['width_attribute'],
+							array('id' => 'clcdesq_width_id', 'class' => 'form-control input-sm')); ?>
+					</div>
+				</div>
+			</div>
+
+			<div class="form-group form-group-sm">
+				<?php echo form_label($this->lang->line('config_clcdesq_depth'), 'clcdesq_depth_id', array('class' => 'control-label col-xs-2')); ?>
+				<div class='col-xs-4'>
+					<div class="input-group">
+						<span class="input-group-addon input-sm"><span class="glyphicon glyphicon-indent-right"></span></span>
+						<?php echo form_dropdown('clcdesq_depth_id',
+							$clcdesq['available_attributes'],
+							$clcdesq['depth_attribute'],
+							array('id' => 'clcdesq_depth_id', 'class' => 'form-control input-sm')); ?>
+					</div>
+				</div>
+			</div>
+
+			<div class="form-group form-group-sm">
+				<?php echo form_label($this->lang->line('config_clcdesq_height'), 'clcdesq_height_id', array('class' => 'control-label col-xs-2')); ?>
+				<div class='col-xs-4'>
+					<div class="input-group">
+						<span class="input-group-addon input-sm"><span class="glyphicon glyphicon-indent-right"></span></span>
+						<?php echo form_dropdown('clcdesq_height_id',
+							$clcdesq['available_attributes'],
+							$clcdesq['height_attribute'],
+							array('id' => 'clcdesq_height_id', 'class' => 'form-control input-sm')); ?>
+					</div>
+				</div>
+			</div>
+
+<!-- Submit Button -->				
+			<?php 
+				echo form_submit(array(
+					'name' => 'submit_integrations',
+					'id' => 'submit_integrations',
+					'value' => $this->lang->line('common_submit'),
+					'class' => 'btn btn-primary btn-sm pull-right')); 
+			?>
+				
 		</fieldset>
 	</div>
 <?php echo form_close(); ?>
@@ -66,7 +210,7 @@ $(document).ready(function()
 		);
 	});
 
-	$('#mailchimp_config_form').validate($.extend(form_support.handler, {
+	$('#integrations_config_form').validate($.extend(form_support.handler, {
 		submitHandler: function(form) {
 			$(form).ajaxSubmit({
 				success: function(response) {
@@ -76,7 +220,7 @@ $(document).ready(function()
 			});
 		},
 
-		errorLabelContainer: '#mailchimp_error_message_box'
+		errorLabelContainer: '#integrations_error_message_box'
 	}));
 });
 </script>

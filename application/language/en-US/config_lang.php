@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 $lang["config_address"] = "Company Address";
 $lang["config_address_required"] = "Company address is a required field.";
@@ -34,6 +34,19 @@ $lang["config_cash_decimals"] = "Cash Decimals";
 $lang["config_cash_decimals_tooltip"] = "If Cash Decimals and Currency Decimals are the same then no cash rounding will take place.";
 $lang["config_cash_rounding"] = "Cash Rounding";
 $lang["config_center"] = "Center";
+$lang["config_clcdesq_configuration"] = "CLCdesq Configuration";
+$lang["config_clcdesq_api_key"] = "CLCdesq API Key";
+$lang["config_clcdesq_api_url"] = "CLCdesq API URL";
+$lang["config_clcdesq_authorstext"] = "AuthorsText";
+$lang["config_clcdesq_binding"] = "Binding";
+$lang["config_clcdesq_depth"] = "Depth";
+$lang["config_clcdesq_height"] = "Height";
+$lang["config_clcdesq_languageao_shortname"] = "LanguageAO ShortName";
+$lang["config_clcdesq_originaltitle"] = "OriginalTitle";
+$lang["config_clcdesq_publisher"] = "Publisher";
+$lang["config_clcdesq_source"] = "CLCdesq Data Sources";
+$lang["config_clcdesq_weight"] = "Weight";
+$lang["config_clcdesq_width"] = "Width";
 $lang["config_comma"] = "comma";
 $lang["config_company"] = "Company Name";
 $lang["config_company_change_image"] = "Change Image";

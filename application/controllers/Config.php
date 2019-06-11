@@ -218,20 +218,35 @@ class Config extends Secure_Controller
 		// load all the themes, already XSS cleaned in the private function
 		$data['themes'] = $this->_themes();
 		
-		$data['mailchimp'] = array();
+		//Load Integrations Related fields
+		$data['mailchimp']	= array();
+		$data['clcdesq']	= array();
+		
 		if($this->_check_encryption())
 		{
 			$data['mailchimp']['api_key'] = $this->encryption->decrypt($this->config->item('mailchimp_api_key'));
 			$data['mailchimp']['list_id'] = $this->encryption->decrypt($this->config->item('mailchimp_list_id'));
+			$data['clcdesq']['api_key'] = $this->encryption->decrypt($this->config->item('clcdesq_api_key'));
+			$data['clcdesq']['api_url'] = $this->encryption->decrypt($this->config->item('clcdesq_api_url'));
 		}
 		else
 		{
 			$data['mailchimp']['api_key'] = '';
 			$data['mailchimp']['list_id'] = '';
+			$data['clcdesq']['api_key'] = '';
+			$data['clcdesq']['api_url'] = '';
 		}
 		
-		// load mailchimp lists associated to the given api key, already XSS cleaned in the private function
-		$data['mailchimp']['lists'] = $this->_mailchimp();
+		$data['mailchimp']['lists'] 				= $this->_mailchimp();
+		$data['clcdesq']['available_attributes'] 	= $this->Attribute->get_definition_names(FALSE);
+		$data['clcdesq']['authorstext_attribute'] 	= $this->config->item('clcdesq_authorstext');
+		$data['clcdesq']['binding_attribute'] 		= $this->config->item('clcdesq_binding');
+		$data['clcdesq']['originaltitle_attribute']	= $this->config->item('clcdesq_originaltitle');
+		$data['clcdesq']['publisher_attribute']		= $this->config->item('clcdesq_publisher');
+		$data['clcdesq']['weight_attribute'] 		= $this->config->item('clcdesq_weight');
+		$data['clcdesq']['width_attribute'] 		= $this->config->item('clcdesq_width');
+		$data['clcdesq']['depth_attribute'] 		= $this->config->item('clcdesq_depth');
+		$data['clcdesq']['height_attribute'] 		= $this->config->item('clcdesq_height');
 		
 		$this->load->view("configs/manage", $data);
 	}
@@ -454,7 +469,7 @@ class Config extends Secure_Controller
 	}
 	
 	/*
-	 AJAX call from mailchimp config form to fetch the Mailchimp lists when a valid API key is inserted
+	 AJAX call from integrations config form to fetch the Mailchimp lists when a valid API key is inserted
 	 */
 	public function ajax_check_mailchimp_api_key()
 	{
@@ -469,20 +484,34 @@ class Config extends Secure_Controller
 		));
 	}
 	
-	public function save_mailchimp()
+	public function save_integrations()
 	{
-		$api_key = '';
-		$list_id = '';
+		$mailchimp_api_key	= '';
+		$mailchimp_list_id	= '';
+		$clcdesq_api_key	= '';
+		$clcdesq_api_url	= '';
 		
 		if($this->_check_encryption())
 		{
-			$api_key = $this->encryption->encrypt($this->input->post('mailchimp_api_key'));
-			$list_id = $this->encryption->encrypt($this->input->post('mailchimp_list_id'));
+			$mailchimp_api_key = $this->encryption->encrypt($this->input->post('mailchimp_api_key'));
+			$mailchimp_list_id = $this->encryption->encrypt($this->input->post('mailchimp_list_id'));
+			$clcdesq_api_key = $this->encryption->encrypt($this->input->post('clcdesq_api_key'));
+			$clcdesq_api_url = $this->encryption->encrypt($this->input->post('clcdesq_api_url'));
 		}
 		
 		$batch_save_data = array(
-			'mailchimp_api_key' => $api_key,
-			'mailchimp_list_id' => $list_id
+			'mailchimp_api_key'		=> $mailchimp_api_key,
+			'mailchimp_list_id' 	=> $mailchimp_list_id,
+			'clcdesq_api_key' 		=> $clcdesq_api_key,
+			'clcdesq_api_url' 		=> $clcdesq_api_url,
+			'clcdesq_authorstext'	=> $this->input->post('clcdesq_authorstext_id'),
+			'clcdesq_binding'		=> $this->input->post('clcdesq_binding_id'),
+			'clcdesq_originaltitle'	=> $this->input->post('clcdesq_originaltitle_id'),
+			'clcdesq_publisher'		=> $this->input->post('clcdesq_publisher_id'),
+			'clcdesq_weight'		=> $this->input->post('clcdesq_weight_id'),
+			'clcdesq_width'			=> $this->input->post('clcdesq_width_id'),
+			'clcdesq_depth'			=> $this->input->post('clcdesq_depth_id'),
+			'clcdesq_height'		=> $this->input->post('clcdesq_height_id')
 		);
 		
 		$result = $this->Appconfig->batch_save($batch_save_data);
