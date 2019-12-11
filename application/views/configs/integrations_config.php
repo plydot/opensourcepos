@@ -43,6 +43,17 @@
 <!-- CLCdesq Integration -->				
 			<div id="integrations_header"><?php echo $this->lang->line('config_clcdesq_configuration')?></div>
 
+			<div class="form-group form-group-sm">	
+				<?php echo form_label($this->lang->line('config_clcdesq_enable'), 'clcdesq_enable', array('class' => 'control-label col-xs-2')); ?>
+				<div class='col-xs-1'>
+					<?php echo form_checkbox(array(
+						'name' => 'clcdesq_enable',
+						'value' => 'clcdesq_enable',
+						'id' => 'clcdesq_enable',
+						'checked' => $clcdesq['enable']));?>
+				</div>
+			</div>
+
 			<div class="form-group form-group-sm">
 				<?php echo form_label($this->lang->line('config_clcdesq_api_key'), 'clcdesq_api_key', array('class' => 'control-label col-xs-2')); ?>
 				<div class="col-xs-4">
@@ -163,6 +174,19 @@
 							$clcdesq['available_attributes'],
 							$clcdesq['format_attribute'],
 							array('id' => 'clcdesq_format_id', 'class' => 'form-control input-sm')); ?>
+					</div>
+				</div>
+			</div>
+
+			<div class="form-group form-group-sm">
+				<?php echo form_label($this->lang->line('config_clcdesq_guid'), 'clcdesq_guid_id', array('class' => 'control-label col-xs-2')); ?>
+				<div class='col-xs-4'>
+					<div class="input-group">
+						<span class="input-group-addon input-sm"><span class="glyphicon glyphicon-book"></span></span>
+						<?php echo form_dropdown('clcdesq_guid_id',
+							$clcdesq['available_attributes'],
+							$clcdesq['guid_attribute'],
+							array('id' => 'clcdesq_guid_id', 'class' => 'form-control input-sm')); ?>
 					</div>
 				</div>
 			</div>
@@ -382,6 +406,38 @@ $(document).ready(function()
 		);
 	});
 
+	var enable_disable_config_clcdesq_enable = (function() {
+		var config_clcdesq_enable = $("#clcdesq_enable").is(":checked");
+		$("input[name*='clcdesq_api_key']:not(input[name=clcdesq_enable])").prop("disabled", !config_clcdesq_enable);
+		$("input[name*='clcdesq_api_url']:not(input[name=clcdesq_enable])").prop("disabled", !config_clcdesq_enable);
+		$("select[name*='clcdesq_aspectratio_id']:not(input[name=clcdesq_enable])").prop("disabled", !config_clcdesq_enable);
+		$("select[name*='clcdesq_audiencerating_id']:not(input[name=clcdesq_enable])").prop("disabled", !config_clcdesq_enable);
+		$("select[name*='clcdesq_audioformat_id']:not(input[name=clcdesq_enable])").prop("disabled", !config_clcdesq_enable);
+		$("select[name*='clcdesq_authorstext_id']:not(input[name=clcdesq_enable])").prop("disabled", !config_clcdesq_enable);
+		$("select[name*='clcdesq_binding']:not(input[name=clcdesq_enable])").prop("disabled", !config_clcdesq_enable);
+		$("select[name*='clcdesq_depth_id']:not(input[name=clcdesq_enable])").prop("disabled", !config_clcdesq_enable);
+		$("select[name*='clcdesq_format_id']:not(input[name=clcdesq_enable])").prop("disabled", !config_clcdesq_enable);
+		$("select[name*='clcdesq_guid_id']:not(input[name=clcdesq_enable])").prop("disabled", !config_clcdesq_enable);
+		$("select[name*='clcdesq_height_id']:not(input[name=clcdesq_enable])").prop("disabled", !config_clcdesq_enable);
+		$("select[name*='clcdesq_numberofpages_id']:not(input[name=clcdesq_enable])").prop("disabled", !config_clcdesq_enable);
+		$("select[name*='clcdesq_originaltitle_id']:not(input[name=clcdesq_enable])").prop("disabled", !config_clcdesq_enable);
+		$("select[name*='clcdesq_pricenote_id']:not(input[name=clcdesq_enable])").prop("disabled", !config_clcdesq_enable);
+		$("select[name*='clcdesq_producer_id']:not(input[name=clcdesq_enable])").prop("disabled", !config_clcdesq_enable);
+		$("select[name*='clcdesq_releasedate_id']:not(input[name=clcdesq_enable])").prop("disabled", !config_clcdesq_enable);
+		$("select[name*='clcdesq_runningtime_id']:not(input[name=clcdesq_enable])").prop("disabled", !config_clcdesq_enable);
+		$("select[name*='clcdesq_subtitle_id']:not(input[name=clcdesq_enable])").prop("disabled", !config_clcdesq_enable);
+		$("select[name*='clcdesq_subtitles_id']:not(input[name=clcdesq_enable])").prop("disabled", !config_clcdesq_enable);
+		$("select[name*='clcdesq_teaserdescription_id']:not(input[name=clcdesq_enable])").prop("disabled", !config_clcdesq_enable);
+		$("select[name*='clcdesq_videotrailerembedcode_id']:not(input[name=clcdesq_enable])").prop("disabled", !config_clcdesq_enable);
+		$("select[name*='clcdesq_weight_id']:not(input[name=clcdesq_enable])").prop("disabled", !config_clcdesq_enable);
+		$("select[name*='clcdesq_weightforshipping_id']:not(input[name=clcdesq_enable])").prop("disabled", !config_clcdesq_enable);
+		$("select[name*='clcdesq_width_id']:not(input[name=clcdesq_enable])").prop("disabled", !config_clcdesq_enable);
+		
+		return arguments.callee;
+	})();
+
+	$("#clcdesq_enable").change(enable_disable_config_clcdesq_enable);
+	
 	$('#integrations_config_form').validate($.extend(form_support.handler, {
 		submitHandler: function(form) {
 			$(form).ajaxSubmit({

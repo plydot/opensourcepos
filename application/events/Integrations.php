@@ -21,7 +21,7 @@ class Integrations
 	{
 		//Third-Party Integrations by adding all code related to the integration into a library and referencing the library here with $this->ci->load->library();
 		$this->CI =& get_instance();
-		//$this->CI->load->library('LIB_NAME_HERE');
+		$this->CI->load->library('clcdesq_integration_lib');
 		
 		Events::register('event_create', array($this,'integrations_create'));
 		Events::register('event_read', array($this,'integrations_read'));
@@ -43,7 +43,7 @@ class Integrations
 		switch($data['type'])
 		{
 			case 'ITEMS':
-				//$results = $this->CI->LIB_NAME->METHOD_NAME();
+				$results = $this->CI->clcdesq_integration_lib->new_product_push();
 				break;
 				
 			case 'ITEM_KITS':
@@ -102,6 +102,7 @@ class Integrations
 		switch($data['type'])
 		{
 			case 'ITEMS':
+				$results = $this->CI->clcdesq_integration_lib->update_product_push();
 				break;
 				
 			case 'ITEM_KITS':
@@ -144,6 +145,7 @@ class Integrations
 		switch($data['type'])
 		{
 			case 'ITEMS':
+				$results = $this->CI->clcdesq_integration_lib->delete_product_push();
 				break;
 				
 			case 'ITEM_KITS':

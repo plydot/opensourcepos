@@ -239,6 +239,7 @@ class Config extends Secure_Controller
 		
 		$data['mailchimp']['lists'] 						= $this->_mailchimp();
 		
+		$data['clcdesq']['enable']				 			= $this->config->item('clcdesq_enable');
 		$data['clcdesq']['available_attributes'] 			= $this->Attribute->get_definition_names(FALSE);
 		$data['clcdesq']['aspectratio_attribute'] 			= $this->config->item('clcdesq_aspectratio');			//-
 		$data['clcdesq']['audiencerating_attribute']		= $this->config->item('clcdesq_audiencerating');		//-
@@ -247,6 +248,7 @@ class Config extends Secure_Controller
 		$data['clcdesq']['binding_attribute'] 				= $this->config->item('clcdesq_binding');
 		$data['clcdesq']['depth_attribute'] 				= $this->config->item('clcdesq_depth');
 		$data['clcdesq']['format_attribute'] 				= $this->config->item('clcdesq_format');				//-
+		$data['clcdesq']['guid_attribute']	 				= $this->config->item('clcdesq_guid');
 		$data['clcdesq']['height_attribute'] 				= $this->config->item('clcdesq_height');
 		$data['clcdesq']['numberofpages_attribute']			= $this->config->item('clcdesq_numberofpages');			//-
 		$data['clcdesq']['originaltitle_attribute']			= $this->config->item('clcdesq_originaltitle');
@@ -261,7 +263,7 @@ class Config extends Secure_Controller
 		$data['clcdesq']['weight_attribute'] 				= $this->config->item('clcdesq_weight');
 		$data['clcdesq']['weightforshipping_attribute']		= $this->config->item('clcdesq_weightforshipping');		//-
 		$data['clcdesq']['width_attribute'] 				= $this->config->item('clcdesq_width');
-				
+		
 		$this->load->view("configs/manage", $data);
 	}
 	
@@ -335,12 +337,12 @@ class Config extends Secure_Controller
 			'message' => $this->lang->line('config_saved_' . ($success ? '' : 'un') . 'successfully')
 		));
 	}
-
+	
 	public function ajax_check_number_locale()
 	{
 		$number_locale = $this->input->post('number_locale');
 		$save_number_locale = $this->input->post('save_number_locale');
-
+		
 		$fmt = new \NumberFormatter($number_locale, \NumberFormatter::CURRENCY);
 		if($number_locale != $save_number_locale)
 		{
@@ -353,15 +355,15 @@ class Config extends Secure_Controller
 			$currency_symbol = empty($this->input->post('currency_symbol')) ? $fmt->getSymbol(\NumberFormatter::CURRENCY_SYMBOL) : $this->input->post('currency_symbol');
 			$currency_code = empty($this->input->post('currency_code')) ? $fmt->getTextAttribute(\NumberFormatter::CURRENCY_CODE) : $this->input->post('currency_code');
 		}
-
+		
 		if($this->input->post('thousands_separator') == 'false')
 		{
 			$fmt->setAttribute(\NumberFormatter::GROUPING_SEPARATOR_SYMBOL, '');
 		}
-
+		
 		$fmt->setSymbol(\NumberFormatter::CURRENCY_SYMBOL, $currency_symbol);
 		$number_local_example = $fmt->format(1234567890.12300);
-
+		
 		echo json_encode(array(
 			'success' => $number_local_example != FALSE,
 			'save_number_locale' => $save_number_locale,
@@ -370,7 +372,7 @@ class Config extends Secure_Controller
 			'currency_code' => $currency_code,
 		));
 	}
-
+	
 	public function save_locale()
 	{
 		$exploded = explode(":", $this->input->post('language'));
@@ -513,11 +515,14 @@ class Config extends Secure_Controller
 			$clcdesq_api_url = $this->encryption->encrypt($this->input->post('clcdesq_api_url'));
 		}
 		
+		$clcdesq_enable = $this->input->post('clcdesq_enable') != NULL;
+		
 		$batch_save_data = array(
 			'mailchimp_api_key'				=> $mailchimp_api_key,
 			'mailchimp_list_id' 			=> $mailchimp_list_id,
 			'clcdesq_api_key' 				=> $clcdesq_api_key,
 			'clcdesq_api_url' 				=> $clcdesq_api_url,
+			'clcdesq_enable'				=> $clcdesq_enable,
 			
 			'clcdesq_aspectratio'			=> $this->input->post('clcdesq_aspectratio_id'),
 			'clcdesq_audioformat' 			=> $this->input->post('clcdesq_audioformat_id'),
@@ -526,6 +531,7 @@ class Config extends Secure_Controller
 			'clcdesq_binding'				=> $this->input->post('clcdesq_binding_id'),
 			'clcdesq_depth'					=> $this->input->post('clcdesq_depth_id'),
 			'clcdesq_format' 				=> $this->input->post('clcdesq_format_id'),
+			'clcdesq_guid' 					=> $this->input->post('clcdesq_guid_id'),
 			'clcdesq_height'				=> $this->input->post('clcdesq_height_id'),
 			'clcdesq_numberofpages'			=> $this->input->post('clcdesq_numberofpages_id'),
 			'clcdesq_originaltitle'			=> $this->input->post('clcdesq_originaltitle_id'),
@@ -830,7 +836,7 @@ class Config extends Secure_Controller
 			'print_bottom_margin' => $this->input->post('print_bottom_margin'),
 			'print_right_margin' => $this->input->post('print_right_margin')
 		);
-
+		
 		$result = $this->Appconfig->batch_save($batch_save_data);
 		$success = $result ? TRUE : FALSE;
 		
