@@ -24,11 +24,16 @@ class Clcdesq_integration_lib
 
 	public function new_product_push(array $data)
 	{
+//TODO: Gather data to send to the Product Push API
+//TODO: Format the data to a json request
+//TODO: Use the API key and url to send the request
+//TODO: The result of the API Product Push should be a GUID.  Store that in the database as an attribute for the pushed product		
 		return NULL;
 	}
 	
 	public function update_product_push(array $data)
 	{
+//TODO: For now, the update product push is identical to the new product push except that we are sending the GUID
 		return NULL;
 	}
 	
