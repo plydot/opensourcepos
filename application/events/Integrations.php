@@ -43,7 +43,7 @@ class Integrations
 		switch($data['type'])
 		{
 			case 'ITEMS':
-				$results = $this->CI->clcdesq_integration_lib->new_product_push();
+				$results = $this->CI->clcdesq_integration_lib->new_product_push($data['data']);
 				break;
 				
 			case 'ITEM_KITS':
@@ -102,7 +102,7 @@ class Integrations
 		switch($data['type'])
 		{
 			case 'ITEMS':
-				$results = $this->CI->clcdesq_integration_lib->update_product_push();
+				$results = $this->CI->clcdesq_integration_lib->update_product_push($data['data']);
 				break;
 				
 			case 'ITEM_KITS':
@@ -145,7 +145,7 @@ class Integrations
 		switch($data['type'])
 		{
 			case 'ITEMS':
-				$results = $this->CI->clcdesq_integration_lib->delete_product_push();
+				$results = $this->CI->clcdesq_integration_lib->delete_product_push($data['data']);
 				break;
 				
 			case 'ITEM_KITS':
