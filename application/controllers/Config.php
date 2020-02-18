@@ -249,6 +249,7 @@ class Config extends Secure_Controller
 		$data['clcdesq']['binding_attribute'] 				= $this->config->item('clcdesq_binding');
 		$data['clcdesq']['bookforeword_attribute'] 			= $this->config->item('clcdesq_bookforeword');
 		$data['clcdesq']['bookindex_attribute'] 			= $this->config->item('clcdesq_bookindex');
+		$data['clcdesq']['booksamplechapter_attribute'] 	= $this->config->item('clcdesq_booksamplechapter');
 		$data['clcdesq']['category_attribute'] 				= $this->config->item('clcdesq_category');
 		$data['clcdesq']['depth_attribute'] 				= $this->config->item('clcdesq_depth');
 		$data['clcdesq']['format_attribute'] 				= $this->config->item('clcdesq_format');
@@ -543,6 +544,7 @@ class Config extends Secure_Controller
 			'clcdesq_binding'				=> $this->input->post('clcdesq_binding_id'),
 			'clcdesq_bookforeword'			=> $this->input->post('clcdesq_bookforeword_id'),
 			'clcdesq_bookindex'				=> $this->input->post('clcdesq_bookindex_id'),
+			'clcdesq_booksamplechapter'		=> $this->input->post('clcdesq_booksamplechapter_id'),
 			'clcdesq_category'				=> $this->input->post('clcdesq_category_id'),
 			'clcdesq_depth'					=> $this->input->post('clcdesq_depth_id'),
 			'clcdesq_format' 				=> $this->input->post('clcdesq_format_id'),

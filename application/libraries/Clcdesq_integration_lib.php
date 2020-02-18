@@ -33,9 +33,10 @@ class Clcdesq_integration_lib
 		$pushdata	= $this->populate_api_data($data);
 		
 		$json = json_encode($pushdata);
-		//		$clcdesq_guid = $this->send_data($this->api_url, $this->api_key, $json);
 		
-		//log_message("ERROR", "API Results: $clcdesq_guid");
+		$clcdesq_guid = $this->send_data($this->api_url, $this->api_key, $json);
+		
+		log_message("ERROR", "API Results: $clcdesq_guid");
 		//TODO: The result of the API Product Push should be a GUID.  Store that in the database as an attribute for the pushed product
 		return NULL;
 	}
@@ -56,6 +57,7 @@ class Clcdesq_integration_lib
 		$pushdata	= $this->populate_api_data($data);
 		
 		$json = json_encode($pushdata);
+		
 		//		$clcdesq_guid = $this->send_data($this->api_url, $this->api_key, $json);
 		
 		//TODO: For now, the update product push is identical to the new product push except that we are sending the GUID
@@ -115,6 +117,7 @@ class Clcdesq_integration_lib
 	 */
 	private function send_data(string $url, string $key, string $json)
 	{
+		$url = 'https://clcdesq.free.beeceptor.com';
 		$curl_resource	= curl_init($url);
 		curl_setopt($curl_resource, CURLOPT_HTTPHEADER, array('Content-type: application/json',"APIKEY: $key"));
 		curl_setopt($curl_resource, CURLOPT_POST, TRUE);
@@ -137,72 +140,83 @@ class Clcdesq_integration_lib
 	private function populate_api_data($data)
 	{
 		//TODO: Figure out how to have Items pass the item_id for an item update
-		$item_id = $data['item_id'];
+		$item_id		= $data['item_id'];
+		$config_data	= array();
 		
-		$api_data = array(
-			'AspectRatio' 			=> $this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_aspectratio'))->attribute_value,
-			'AudienceRating' 		=> $this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_audiencerating'))->attribute_value,
-			'AudioFormat' 			=> $this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_audioformat'))->attribute_value,
-			'AudioTrackListing' 	=> $this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_audiotracklisting'))->attribute_value,
-			'AuthorsText' 			=> $this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_authorstext'))->attribute_value,
+		foreach($this->CI->Appconfig->get_all()->result() as $app_config)
+		{
+			$config_data[$app_config->key] = $app_config->value;
+		}
+		
+		//TODO: EVERYTHING NEEDS TO BE IN A PRODUCTAO BRACKETS
+		$api_data = array('ProductAO' => array(
+			'AspectRatio' 			=> $this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_aspectratio'])->attribute_value,
+			'AudienceRating' 		=> $this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_audiencerating'])->attribute_value,
+			'AudioFormat' 			=> $this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_audioformat'])->attribute_value,
+			'AudioTrackListing' 	=> $this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_audiotracklisting'])->attribute_value,
+			'AuthorsText' 			=> $this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_authorstext'])->attribute_value,
 			'Barcode' 				=> $data['item_number'],
-			'Binding' 				=> $this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_binding'))->attribute_value,
-			'BookForeword' 			=> $this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_bookforeward'))->attribute_value,
-			'BookIndex' 			=> $this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_bookindex'))->attribute_value,
-			'BookSampleChapter' 	=> $this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_booksamplechapter'))->attribute_value,
+			'Binding' 				=> $this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_binding'])->attribute_value,
+			'BookForeword' 			=> $this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_bookforeword'])->attribute_value,
+			'BookIndex' 			=> $this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_bookindex'])->attribute_value,
+			'BookSampleChapter' 	=> $this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_booksamplechapter'])->attribute_value,
 			'Contributors' 			=> array('Contributors' => $this->get_contributor_ao_array($item_id)),
 			'DateAdded'	 			=> $this->get_date_added($item_id),
-			'Depth'		 			=> (float)$this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_depth'))->attribute_decimal,
+			'Depth'		 			=> (float)$this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_depth'])->attribute_decimal,
 			'Description' 			=> $data['description'],
-			'DimensionUnit' 		=> $this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_depth'))->attribute_decimal !== NULL ? $this->CI->Attribute->get_info((int)$this->CI->Appconfig->get('clcdesq_depth'))->definition_unit : NULL,
-			//'DiscountGroup' 		=> $this->get_Product_discount_group_ao_array($item_id),
-			'EAN' 					=> $this->get_ean($this->get_isbn((int)$data['item_number'])),
-			'Format' 				=> $this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_format'))->attribute_value,
-			'Height'		 		=> (float)$this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_height'))->attribute_decimal,
+			'DimensionUnit' 		=> $this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_depth'])->attribute_decimal !== NULL ? $this->CI->Attribute->get_info((int)$config_data['clcdesq_depth'])->definition_unit : NULL,
+			'DiscountGroup' 		=> $this->get_product_discount_group_ao_array($item_id),
+			'EAN' 					=> $this->get_ean($this->get_isbn($data['item_number'])),
+			'Format' 				=> $this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_format'])->attribute_value,
+			'Height'		 		=> (float)$this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_height'])->attribute_decimal,
 			'InternalCode' 			=> $item_id,
-			'ISBN'		 			=> $this->get_isbn((int)$data['item_number']),
+			'ISBN'		 			=> $this->get_isbn($data['item_number']),
 			'KindId'		 		=> $data['category'] == 'Books' ? 1 : NULL,		/* Regular Book*/
 			'Language'	 			=> $this->get_language_ao_array((int)$item_id),
 			'MediaType'	 			=> $this->get_media_type_ao_array($data['category']),
-			'NumberOfDiscs' 		=> (int)$this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_numberofdiscs'))->attribute_decimal,
-			'NumberOfPages' 		=> (int)$this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_numberofpages'))->attribute_decimal,
-			'OriginalTitle' 		=> $this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_originaltitle'))->attribute_value,
+			'NumberOfDiscs' 		=> (int)$this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_numberofdiscs'])->attribute_decimal,
+			'NumberOfPages' 		=> (int)$this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_numberofpages'])->attribute_decimal,
+			'OriginalTitle' 		=> $this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_originaltitle'])->attribute_value,
 			'Price' 				=> $data['unit_price'],
 			'PriceWithoutVAT'		=> $this->get_price_without_VAT($data['unit_price']),
-			'PriceNote'				=> $this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_pricenote'))->attribute_value,
+			'PriceNote'				=> $this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_pricenote'])->attribute_value,
 			'Producer'				=> $this->get_producer_user_ao_array($item_id),
 			'ProductStatusProducer' => $this->get_product_status_producer_ao_array($item_id),
-			'PriceCurrency'			=> $this->CI->Appconfig->get('currency_code') !== '' ? $this->CI->Appconfig->get('currency_code') : NULL,
+			'PriceCurrency'			=> $config_data['currency_code'] !== '' ? $config_data['currency_code'] : NULL,
 			'Published' 			=> $data['deleted'] == FALSE ? TRUE : FALSE,
-			'PublisherRRP'			=> (float)$this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_publisherrrp'))->attribute_decimal,
-			'ReducedPrice'			=> (float)$this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_reducedprice'))->attribute_decimal,
-			'ReducedPriceStartDate'	=> $this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_reducedpricestartdate'))->attribute_date,
-			'ReducedPriceEndDate'	=> $this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_reducedpriceenddate'))->attribute_date,
-			'ReleaseDate' 			=> $this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_releasedate'))->attribute_date,
-			'RunningTime'			=> (int)$this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_runningtime'))->attribute_decimal,
+			'PublisherRRP'			=> (float)$this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_publisherrrp'])->attribute_decimal,
+			'ReducedPrice'			=> (float)$this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_reducedprice'])->attribute_decimal,
+			'ReducedPriceStartDate'	=> $this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_reducedpricestartdate'])->attribute_date,
+			'ReducedPriceEndDate'	=> $this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_reducedpriceenddate'])->attribute_date,
+			'ReleaseDate' 			=> date('Y-m-d\TH:i:s',strtotime($this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_releasedate'])->attribute_date)),
+			'RunningTime'			=> (int)$this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_runningtime'])->attribute_decimal,
 			'Series'				=> $this->get_product_series_ao_array($item_id),
-			'StockCount'			=> get_total_quantity($item_id),
-			'StockOnOrder'			=> (int)$this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_stockonorder'))->attribute_decimal,
+			'StockCount'			=> $this->get_total_quantity($item_id),
+			'StockOnOrder'			=> (int)$this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_stockonorder'])->attribute_decimal,
 			'Supplier'				=> $this->get_supplier_user_ao_array($data['supplier_id']),
-			'ShowOnWebsite'			=> $this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_showonwebsite'))->attribute_value,
-			'Subtitle'				=> $this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_subtitle'))->attribute_value,
-			'Subtitles'				=> $this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_subtitles'))->attribute_value,
-			'TeaserDescription'		=> $this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_teaserdescription'))->attribute_value,
+			'ShowOnWebsite'			=> $this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_showonwebsite'])->attribute_value,
+			'Subtitle'				=> $this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_subtitle'])->attribute_value,
+			'Subtitles'				=> $this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_subtitles'])->attribute_value,
+			'TeaserDescription'		=> $this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_teaserdescription'])->attribute_value,
 			'Title' 				=> $data['name'],
-			'UniqueId'				=> $this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_uniqueid'))->attribute_value,
-			'UPC' 					=> $this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_upc'))->attribute_value,
-			'VatPercent'			=> (float)$this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_vatpercent'))->attribute_decimal,
+			'UniqueId'				=> $this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_uniqueid'])->attribute_value,
+			'UPC' 					=> $this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_upc'])->attribute_value,
+			'VatPercent'			=> (float)$this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_vatpercent'])->attribute_decimal,
 			'VideoTrailerEmbedCode'	=> $data['videotrailerembedcode'],
-			'Weight'				=> (float)$this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_weight'))->attribute_decimal,
-			'WeightForShipping'		=> (float)$this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_weightforshipping'))->attribute_decimal,
-			'WeightUnit'			=> $this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_weight'))->attribute_decimal !== NULL ? $this->CI->Attribute->get_info((int)$this->CI->Appconfig->get('clcdesq_weight'))->definition_unit : NULL,
-			'Width'					=> (float)$this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_width'))->attribute_decimal,
-			'Categories' 			=> array('Categories' => $this->get_category_ao_array($item_id, 'Products', 0))
-		);
+			'Weight'				=> (float)$this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_weight'])->attribute_decimal,
+			'WeightForShipping'		=> (float)$this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_weightforshipping'])->attribute_decimal,
+			'WeightUnit'			=> $this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_weight'])->attribute_decimal !== NULL ? $this->CI->Attribute->get_info((int)$config_data['clcdesq_weight'])->definition_unit : NULL,
+			'Width'					=> (float)$this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_width'])->attribute_decimal,
+			'Categories' 			=> array('CategoryAO' => $this->get_category_ao_array($item_id, 'Products', 0))
+		));
+		
+		$api_data = $this->array_filter_recursive($api_data);
+		
 		ob_start();
 		var_dump($api_data);
-		$dump = ob_get_clean();
-		log_message("ERROR", $dump);
+		$result = ob_get_clean();
+		log_message('Error',$result);
+		
 		return $api_data;
 	}
 	
@@ -226,8 +240,8 @@ class Clcdesq_integration_lib
 		}
 		else
 		{
-			$contributor_ao	= array(
-				'id'			=> null,
+			$contributor_ao	= array('Contributor' => array(
+				'Id'			=> null,
 				'Guid'			=> null,
 				'FirstName'		=> $author['first_name'],
 				'LastName'		=> $author['last_name'],
@@ -235,7 +249,7 @@ class Clcdesq_integration_lib
 				'Description'	=> null,
 				'Role'			=> 'A01',	//Only authors are submitted at this time
 				'Published'		=> TRUE
-			);
+			));
 			
 			return $contributor_ao;
 		}
@@ -287,10 +301,16 @@ class Clcdesq_integration_lib
 	{
 		$date_added = $this->CI->Inventory->get_inventory_data_for_item($item_id)->result_array();
 		
-		return $date_added[0]['trans_date'];
+		return date('Y-m-d\TH:i:s',strtotime($date_added[0]['trans_date']));
 	}
 	
-	private function get_ean(string $isbn)
+	/**
+	 * Generate EAN code from ISBN
+	 *
+	 * @param	string|NULL	$isbn		The ISBN-13 or ISBN-10 of the item
+	 * @return 	string|NULL				The EAN code of the item or NULL if there is no ISBN
+	 */
+	private function get_ean($isbn)
 	{
 		if($isbn !== NULL)
 		{
@@ -300,15 +320,23 @@ class Clcdesq_integration_lib
 		return NULL;
 	}
 	
+	/**
+	 * Generate ISBN from Barcode if the Barcode is properly formatted
+	 *
+	 * @param	string		$barcode	The barcode of the item.
+	 * @return 	NULL|string				Returns the ISBN-10, ISBN-13 or NULL if no ISBN is in the barcode.
+	 */
 	private function get_isbn(string $barcode)
 	{
-		if(strlen($barcode) != 10 && strlen($barcode) !== 13)
+		$isbn_candidate = preg_replace("/[^0-9a-zA-Z]/", "", $barcode);
+		
+		if(strlen($isbn_candidate) != 10 && strlen($isbn_candidate) !== 13)
 		{
 			return NULL;
 		}
 		else
 		{
-			return preg_replace("/[^a-zA-Z0-9]/", '', $string);
+			return $isbn_candidate;
 		}
 	}
 	
@@ -359,13 +387,13 @@ class Clcdesq_integration_lib
 	 */
 	private function get_price_without_vat(float $price)
 	{
-		$tax_rate		= (float)$this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('default_tax_1_rate'));
-		$tax_included	= (bool)$this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('default_tax_1_rate'));
+		$tax_rate		= (float)$this->CI->Appconfig->get('default_tax_1_rate');
+		$tax_included	= (bool)$this->CI->Appconfig->get('tax_included');
 		
 		if($tax_rate != NULL && $tax_included)
 		{
 			$tax_percent = $tax_rate/100;
-			return 	$price - roundup($price * $tax_percent,2);
+			return 	$price - ceil(($price * $tax_percent)*100)/100;
 		}
 		else if($tax_rate != NULL)
 		{
@@ -386,7 +414,7 @@ class Clcdesq_integration_lib
 	private function get_producer_user_ao_array(int $item_id)
 	{
 		$producer_user_ao	= array(
-			'UniqeId'				=> NULL,
+			'UniqueId'				=> NULL,
 			'FirstName'				=> NULL,
 			'LastName'				=> NULL,
 			'Email'					=> NULL,
@@ -417,7 +445,7 @@ class Clcdesq_integration_lib
 	private function get_product_status_producer_ao_array(int $item_id)
 	{
 		$product_status_producer_ao	= array(
-			'id'							=> NULL,
+			'Id'							=> NULL,
 			'Name'							=> "Available or Order",
 			'DisplayStatus'					=> TRUE,
 			'DisplayProduct'				=> TRUE,
@@ -441,7 +469,7 @@ class Clcdesq_integration_lib
 	private function get_product_series_ao_array(int $item_id)
 	{
 		$product_series_ao	= array(
-			'id'			=> NULL,
+			'Id'			=> NULL,
 			'UID'			=> NULL,
 			'Title'			=> $this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_series'))->attribute_value,
 			'Description'	=> NULL,
@@ -462,11 +490,14 @@ class Clcdesq_integration_lib
 	private function get_total_quantity($item_id)
 	{
 		$total_quantity		= 0;
-		$stock_locations	= $this->CI->Stock_Location->get_all()->result_array[0];
+		$stock_locations	= $this->CI->Stock_location->get_all()->result_array();
 		
-		foreach($stock_locations as $location_id)
+		foreach($stock_locations as $location => $location_data)
 		{
-			$total_quantity += $this->CI->Item_quantity->get_item_quantity($item_id, $location_id['location_id']);
+			$location_id = $location_data['location_id'];
+			$location_name = $location_data['location_name'];
+			
+			$total_quantity += $this->CI->Item_quantity->get_item_quantity($item_id, $location_id)->quantity;
 		}
 		
 		return $total_quantity;
@@ -475,18 +506,18 @@ class Clcdesq_integration_lib
 	/**
 	 * Prepares a SupplierUserAO array to be sent in the API
 	 *
-	 * @param	int		$item_id	The unique identifier of the item to generate the SupplierUserAO for.
+	 * @param	int|NULL		$item_id	The unique identifier of the item to generate the SupplierUserAO for.
 	 * @return	array				An associative array containing the SupplierUserAO information.
 	 */
-	private function get_supplier_user_ao_array(int $supplier_id)
+	private function get_supplier_user_ao_array($supplier_id)
 	{
-		$supplier_info = $this->CI->Supplier->get_info($supplier_id)->result_array()[0];
+		$supplier_info = $this->CI->Supplier->get_info($supplier_id);
 		
 		$supplier_user_ao	= array(
-			'UniqeId'				=> NULL,
-			'FirstName'				=> $supplier_info['first_name'],
-			'LastName'				=> $supplier_info['last_name'],
-			'Email'					=> $supplier_info['email'],
+			'UniqueId'				=> NULL,
+			'FirstName'				=> $supplier_info->first_name,
+			'LastName'				=> $supplier_info->last_name,
+			'Email'					=> $supplier_info->email,
 			'DateAdded'				=> NULL,
 			'AllowPaymentOnAccount'	=> NULL,
 			'ActivePublic'			=> FALSE,
@@ -496,9 +527,9 @@ class Clcdesq_integration_lib
 			'PasswordHash'			=> NULL,
 			'PasswordSalt'			=> NULL,
 			'Username'				=> NULL,
-			'CompanyName'			=> $supplier_info['company_name'],
+			'CompanyName'			=> $supplier_info->company_name,
 			'CompanyRegistration'	=> NULL,
-			'CompanyVatCode'		=> $supplier_info['tax_id'],
+			'CompanyVatCode'		=> $supplier_info->tax_id,
 			'DiscountGroup'			=> NULL
 		);
 		
@@ -511,7 +542,7 @@ class Clcdesq_integration_lib
 	 * @param	int		$item_id	The unique identifier of the item to generate the ProductSeriesAO for.
 	 * @return	array				An associative array containing the ProductSeriesAO information.
 	 */
-	private function get_category_ao_array(int $item_id, string $title = NULL, int $level)
+	private function get_category_ao_array($item_id, string $title = NULL, int $level)
 	{
 		if($title == NULL)
 		{
@@ -520,21 +551,17 @@ class Clcdesq_integration_lib
 		else
 		{
 			//Products->$data['category']->$attribute['location']->$attribute->['category']
-			
 			switch($level)
 			{
 				case 0:	//Products
+					$next_title = $this->CI->Item->get_info($item_id)->category;
 					break;
 					
 				case 1: //Category (Books, Media, Gifts, etc.)
-					$next_title = $this->CI->Item->get_info($item_id)['category'];
-					break;
-					
-				case 2: //Location Attribute(Gift and Travel, Reference, Azerbaijani, etc.)
 					$next_title = $this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_location'))->attribute_value;
 					break;
 					
-				case 3: //Category Attribute(Travel Guides, Prayer, etc)
+				case 2: //Location Attribute(Gift and Travel, Reference, Azerbaijani, etc.)
 					$next_title = $this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_category'))->attribute_value;
 					break;
 					
@@ -546,10 +573,45 @@ class Clcdesq_integration_lib
 			$category_ao	= array(
 				'Id'	=> NULL,
 				'Title'	=> $title,
-				'children' => $this->get_category_ao_array($iten_id, $next_title, $level+1)
+				'children' => array('CategoryAO' => $this->get_category_ao_array($item_id, $next_title, $level+1))
 			);
 		}
 		
 		return $category_ao;
+	}
+	
+	/**
+	 * Prepares the ProductDiscountGroup API Object for inclusion in the API data
+	 *
+	 * @param	int	$item_id	Item ID for which to
+	 */
+	private function get_product_discount_group_ao_array($item_id)
+	{
+		$product_discount_group_ao	= array('DiscountGroup' => array(
+			'UID'	=> NULL,
+			'Name'	=> NULL,
+			'Description' => NULL
+		));
+		
+		return $product_discount_group_ao;
+	}
+	
+	/**
+	 * Recursively filters out FALSE values (NULL, '' and 0) from Array
+	 *
+	 * @param	array|string	$input	The array or array value to analize
+	 * @return	array|string			The resulting array element or array
+	 */
+	private function array_filter_recursive($input)
+	{
+		foreach ($input as &$value)
+		{
+			if (is_array($value))
+			{
+				$value = $this->array_filter_recursive($value);
+			}
+		}
+		
+		return array_filter($input);
 	}
 }
