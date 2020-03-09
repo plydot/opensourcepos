@@ -55,28 +55,28 @@
 			</div>
 
 			<div class="form-group form-group-sm">
-				<?php echo form_label($this->lang->line('config_clcdesq_api_key'), 'clcdesq_api_key', array('class' => 'control-label col-xs-2')); ?>
+				<?php echo form_label($this->lang->line('config_clcdesq_api_key'), 'clcdesq_api_key', array('class' => 'control-label col-xs-2 required')); ?>
 				<div class="col-xs-4">
 					<div class="input-group">
 						<span class="input-group-addon input-sm"><span class="glyphicon glyphicon-cloud"></span></span>
 						<?php echo form_input(array(
 							'name' => 'clcdesq_api_key',
 							'id' => 'clcdesq_api_key',
-							'class' => 'form-control input-sm',
+							'class' => 'form-control input-sm required',
 							'value' => $clcdesq['api_key'])); ?>
 					</div>
 				</div>
 			</div>
 
 			<div class="form-group form-group-sm">
-				<?php echo form_label($this->lang->line('config_clcdesq_api_url'), 'clcdesq_api_url', array('class' => 'control-label col-xs-2')); ?>
+				<?php echo form_label($this->lang->line('config_clcdesq_api_url'), 'clcdesq_api_url', array('class' => 'control-label col-xs-2 required')); ?>
 				<div class="col-xs-4">
 					<div class="input-group">
 						<span class="input-group-addon input-sm"><span class="glyphicon glyphicon-cloud"></span></span>
 						<?php echo form_input(array(
 							'name' => 'clcdesq_api_url',
 							'id' => 'clcdesq_api_url',
-							'class' => 'form-control input-sm',
+							'class' => 'form-control input-sm required',
 							'value' => $clcdesq['api_url'])); ?>
 					</div>
 				</div>

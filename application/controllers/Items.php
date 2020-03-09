@@ -251,11 +251,15 @@ class Items extends Secure_Controller
 				$item_info->tax_category_id = $this->config->item('default_tax_category');
 			}
 		}
-
+		
 		$data['standard_item_locked'] = ($data['item_kit_disabled'] && $item_info->item_type == ITEM_KIT
 			&& !$data['allow_temp_item']
 			&& !($this->config->item('derive_sale_quantity') == '1'));
+<<<<<<< Upstream, based on origin/master
 
+=======
+		
+>>>>>>> ffc50ac Latest testing and changes
 		$data['item_info'] = $item_info;
 
 		$suppliers = array('' => $this->lang->line('items_none'));
@@ -480,7 +484,11 @@ class Items extends Secure_Controller
 	{
 		$upload_success = $this->_handle_image_upload();
 		$upload_data = $this->upload->data();
+<<<<<<< Upstream, based on origin/master
 
+=======
+		
+>>>>>>> ffc50ac Latest testing and changes
 		$receiving_quantity = parse_decimals($this->input->post('receiving_quantity'));
 		$item_type = $this->input->post('item_type') == NULL ? ITEM : $this->input->post('item_type');
 
@@ -627,28 +635,45 @@ class Items extends Secure_Controller
 				$message = $this->xss_clean($this->lang->line('items_successful_' . ($new_item ? 'adding' : 'updating')) . ' ' . $item_data['name']);
 
 				echo json_encode(array('success' => TRUE, 'message' => $message, 'id' => $item_id));
+<<<<<<< Upstream, based on origin/master
 
 			//Event triggers for Third-Party Integrations
+=======
+				
+				//Event triggers for Third-Party Integrations
+>>>>>>> ffc50ac Latest testing and changes
 				if($new_item)
 				{
+<<<<<<< Upstream, based on origin/master
 <<<<<<< Upstream, based on origin/master
 					Events::Trigger('event_create', array("type"=> "ITEMS", "data" => array($item_data)), 'string');
 =======
 				    $event_failures = Events::Trigger('event_create', array("type"=> "ITEMS", "data" => $item_data), 'string');
 >>>>>>> 238f25a Implementing 3rd Party Integrations Event Generator
+=======
+					$event_failures = Events::Trigger('event_create', array("type"=> "ITEMS", "data" => $item_data), 'string');
+>>>>>>> ffc50ac Latest testing and changes
 				}
 				else
 				{
 <<<<<<< Upstream, based on origin/master
+<<<<<<< Upstream, based on origin/master
 					Events::Trigger('event_update', array("type"=> "ITEMS", "data" => array($item_data)), 'string');
 =======
 				    $event_failures = Events::Trigger('event_update', array("type"=> "ITEMS", "data" => $item_data), 'string');
+=======
+					$event_failures = Events::Trigger('event_update', array("type"=> "ITEMS", "data" => $item_data), 'string');
+>>>>>>> ffc50ac Latest testing and changes
 				}
 				
 				if($event_failures)
 				{
+<<<<<<< Upstream, based on origin/master
 				    log_message("ERROR","Third-Party Integration failed during item save: $event_failures");
 >>>>>>> 238f25a Implementing 3rd Party Integrations Event Generator
+=======
+					log_message("ERROR","Third-Party Integration failed during item save: $event_failures");
+>>>>>>> ffc50ac Latest testing and changes
 				}
 			}
 			else
@@ -840,7 +865,7 @@ class Items extends Secure_Controller
 		$data = generate_import_items_csv($allowed_locations,$allowed_attributes);
 		force_download($name, $data, TRUE);
 	}
-
+	
 	public function csv_import()
 	{
 		$this->load->view('items/form_csv_import', NULL);
@@ -914,28 +939,44 @@ class Items extends Secure_Controller
 
 =======
 						
+<<<<<<< Upstream, based on origin/master
 >>>>>>> 238f25a Implementing 3rd Party Integrations Event Generator
 					//Event triggers for Third-Party Integrations
+=======
+						//Event triggers for Third-Party Integrations
+>>>>>>> ffc50ac Latest testing and changes
 						if($this->Item->item_number_exists($item_number))
 						{
+<<<<<<< Upstream, based on origin/master
 <<<<<<< Upstream, based on origin/master
 							Events::Trigger('event_update', array("type"=> "ITEMS", "data" => $item_data), 'string');
 =======
 						    $event_failures = Events::Trigger('event_update', array("type"=> "ITEMS", "data" => $item_data), 'string');
 >>>>>>> 238f25a Implementing 3rd Party Integrations Event Generator
+=======
+							$event_failures = Events::Trigger('event_update', array("type"=> "ITEMS", "data" => $item_data), 'string');
+>>>>>>> ffc50ac Latest testing and changes
 						}
 						else
 						{
 <<<<<<< Upstream, based on origin/master
+<<<<<<< Upstream, based on origin/master
 							Events::Trigger('event_create', array("type"=> "ITEMS", "data" => $item_data), 'string');
 =======
 						    $event_failures = Events::Trigger('event_create', array("type"=> "ITEMS", "data" => $item_data), 'string');
+=======
+							$event_failures = Events::Trigger('event_create', array("type"=> "ITEMS", "data" => $item_data), 'string');
+>>>>>>> ffc50ac Latest testing and changes
 						}
 						
 						if($event_failures)
 						{
+<<<<<<< Upstream, based on origin/master
 						    log_message("ERROR","Third-Party Integration failed during CSV Import: $event_failures");
 >>>>>>> 238f25a Implementing 3rd Party Integrations Event Generator
+=======
+							log_message("ERROR","Third-Party Integration failed during CSV Import: $event_failures");
+>>>>>>> ffc50ac Latest testing and changes
 						}
 					}
 					else //insert or update item failure
@@ -1106,7 +1147,7 @@ class Items extends Secure_Controller
 				'item_id' => $item_data['item_id'],
 				'location_id' => $location_id
 			);
-
+			
 			$csv_data = array(
 				'trans_items' => $item_data['item_id'],
 				'trans_user' => $employee_id,
@@ -1118,7 +1159,7 @@ class Items extends Secure_Controller
 			{
 				$item_quantity_data['quantity'] = $line['location_' . $location_name];
 				$this->Item_quantity->save($item_quantity_data, $item_data['item_id'], $location_id);
-
+				
 				$csv_data['trans_inventory'] = $line['location_' . $location_name];
 				$this->Inventory->insert($csv_data);
 			}
@@ -1126,7 +1167,7 @@ class Items extends Secure_Controller
 			{
 				$item_quantity_data['quantity'] = 0;
 				$this->Item_quantity->save($item_quantity_data, $item_data['item_id'], $line[$col]);
-
+				
 				$csv_data['trans_inventory'] = 0;
 				$this->Inventory->insert($csv_data);
 			}

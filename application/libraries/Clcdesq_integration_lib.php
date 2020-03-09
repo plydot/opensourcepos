@@ -32,10 +32,11 @@ class Clcdesq_integration_lib
 		
 		$pushdata	= $this->populate_api_data($data);
 		
-		$json = json_encode($pushdata);
+		$json = json_encode($pushdata, JSON_UNESCAPED_UNICODE);
 		
 		$clcdesq_guid = $this->send_data($this->api_url, $this->api_key, $json);
 		
+		log_message("ERROR", "New Product JSON Results: $json");
 		log_message("ERROR", "API Results: $clcdesq_guid");
 		//TODO: The result of the API Product Push should be a GUID.  Store that in the database as an attribute for the pushed product
 		return NULL;
@@ -58,7 +59,10 @@ class Clcdesq_integration_lib
 		
 		$json = json_encode($pushdata);
 		
-		//		$clcdesq_guid = $this->send_data($this->api_url, $this->api_key, $json);
+		$clcdesq_guid = $this->send_data($this->api_url, $this->api_key, $json);
+		
+		log_message("ERROR", "Update Product JSON Results: $json");
+		log_message("ERROR", "API Results: $clcdesq_guid");
 		
 		//TODO: For now, the update product push is identical to the new product push except that we are sending the GUID
 		return NULL;
@@ -84,7 +88,10 @@ class Clcdesq_integration_lib
 		$pushdata['ShowOnWebsite']	= FALSE;
 		
 		$json = json_encode($pushdata);
-		//		$clcdesq_guid = $this->send_data($this->api_url, $this->api_key, $json);
+		$clcdesq_guid = $this->send_data($this->api_url, $this->api_key, $json);
+		
+		log_message("ERROR", "Delete Product JSON Results: $json");
+		log_message("ERROR", "API Results: $clcdesq_guid");
 		
 		//TODO: Figure out exactly what the results that it sends back are and return a failure on error.
 		return NULL;
@@ -117,7 +124,7 @@ class Clcdesq_integration_lib
 	 */
 	private function send_data(string $url, string $key, string $json)
 	{
-		$url = 'https://clcdesq.free.beeceptor.com';
+		//$url = 'https://clcdesq.free.beeceptor.com';
 		$curl_resource	= curl_init($url);
 		curl_setopt($curl_resource, CURLOPT_HTTPHEADER, array('Content-type: application/json',"APIKEY: $key"));
 		curl_setopt($curl_resource, CURLOPT_POST, TRUE);
@@ -149,7 +156,7 @@ class Clcdesq_integration_lib
 		}
 		
 		//TODO: EVERYTHING NEEDS TO BE IN A PRODUCTAO BRACKETS
-		$api_data = array('ProductAO' => array(
+		$api_data = array(array(
 			'AspectRatio' 			=> $this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_aspectratio'])->attribute_value,
 			'AudienceRating' 		=> $this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_audiencerating'])->attribute_value,
 			'AudioFormat' 			=> $this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_audioformat'])->attribute_value,
@@ -160,7 +167,7 @@ class Clcdesq_integration_lib
 			'BookForeword' 			=> $this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_bookforeword'])->attribute_value,
 			'BookIndex' 			=> $this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_bookindex'])->attribute_value,
 			'BookSampleChapter' 	=> $this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_booksamplechapter'])->attribute_value,
-			'Contributors' 			=> array('Contributors' => $this->get_contributor_ao_array($item_id)),
+			'Contributors' 			=> $this->get_contributor_ao_array($item_id),
 			'DateAdded'	 			=> $this->get_date_added($item_id),
 			'Depth'		 			=> (float)$this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_depth'])->attribute_decimal,
 			'Description' 			=> $data['description'],
@@ -169,7 +176,7 @@ class Clcdesq_integration_lib
 			'EAN' 					=> $this->get_ean($this->get_isbn($data['item_number'])),
 			'Format' 				=> $this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_format'])->attribute_value,
 			'Height'		 		=> (float)$this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_height'])->attribute_decimal,
-			'InternalCode' 			=> $item_id,
+			'InternalCode' 			=> (string)$item_id,
 			'ISBN'		 			=> $this->get_isbn($data['item_number']),
 			'KindId'		 		=> $data['category'] == 'Books' ? 1 : NULL,		/* Regular Book*/
 			'Language'	 			=> $this->get_language_ao_array((int)$item_id),
@@ -188,7 +195,7 @@ class Clcdesq_integration_lib
 			'ReducedPrice'			=> (float)$this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_reducedprice'])->attribute_decimal,
 			'ReducedPriceStartDate'	=> $this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_reducedpricestartdate'])->attribute_date,
 			'ReducedPriceEndDate'	=> $this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_reducedpriceenddate'])->attribute_date,
-			'ReleaseDate' 			=> date('Y-m-d\TH:i:s',strtotime($this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_releasedate'])->attribute_date)),
+			'ReleaseDate' 			=> $this->get_release_date($item_id,$config_data),
 			'RunningTime'			=> (int)$this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_runningtime'])->attribute_decimal,
 			'Series'				=> $this->get_product_series_ao_array($item_id),
 			'StockCount'			=> $this->get_total_quantity($item_id),
@@ -207,17 +214,33 @@ class Clcdesq_integration_lib
 			'WeightForShipping'		=> (float)$this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_weightforshipping'])->attribute_decimal,
 			'WeightUnit'			=> $this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_weight'])->attribute_decimal !== NULL ? $this->CI->Attribute->get_info((int)$config_data['clcdesq_weight'])->definition_unit : NULL,
 			'Width'					=> (float)$this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_width'])->attribute_decimal,
-			'Categories' 			=> array('CategoryAO' => $this->get_category_ao_array($item_id, 'Products', 0))
+			'Categories' 			=> array($this->get_category_ao_array($item_id, $this->CI->Item->get_info($item_id)->category, 0))
 		));
 		
-		$api_data = $this->array_filter_recursive($api_data);
-		
-		ob_start();
-		var_dump($api_data);
-		$result = ob_get_clean();
-		log_message('Error',$result);
+		$api_data = array('Products' => $this->array_filter_recursive($api_data));
 		
 		return $api_data;
+	}
+	
+	/**
+	 * Returns the release date of the item in YYYY-MM-DDTHH:MM:SS format or NULL if no release date is specified.
+	 *
+	 * @param	int 		$item_id		Unique item identifier of the item in question.
+	 * @param	object		$config_data	Configuration data storing the attribute bindings for the API
+	 * @return	date|NULL					The datetime in YYYY-MM-DDTHH:MM:SS format or NULL if no release date is specified.
+	 */
+	private function get_release_date($item_id, $config_data)
+	{
+		$release_date = $this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_releasedate'])->attribute_date;
+		
+		if(!empty($release_date))
+		{
+			return date('Y-m-d\TH:i:s',strtotime());
+		}
+		else
+		{
+			return NULL;
+		}
 	}
 	
 	/**
@@ -240,7 +263,7 @@ class Clcdesq_integration_lib
 		}
 		else
 		{
-			$contributor_ao	= array('Contributor' => array(
+			$contributor_ao	= array('ContributorAO' => array(
 				'Id'			=> null,
 				'Guid'			=> null,
 				'FirstName'		=> $author['first_name'],
@@ -297,7 +320,7 @@ class Clcdesq_integration_lib
 	 * @param	int		$item_id	The ID of the item to retrieve date added.
 	 * @return	string				The Date this item was first added.
 	 */
-	private function get_date_added(int $item_id)
+	private function get_date_added($item_id)
 	{
 		$date_added = $this->CI->Inventory->get_inventory_data_for_item($item_id)->result_array();
 		
@@ -346,7 +369,7 @@ class Clcdesq_integration_lib
 	 * @param	int		$item_id	The unique identifier for which to get
 	 * @return	array				An associative array containing the LanguageAO information.
 	 */
-	private function get_language_ao_array(int $item_id)
+	private function get_language_ao_array($item_id)
 	{
 		$language_shortname = $this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_language'))->attribute_value;
 		
@@ -411,29 +434,38 @@ class Clcdesq_integration_lib
 	 * @param	int		$item_id	The unique identifier of the item to generate the ProducerUserAO for.
 	 * @return	array				An associative array containing the ProducerUserAO information
 	 */
-	private function get_producer_user_ao_array(int $item_id)
+	private function get_producer_user_ao_array($item_id)
 	{
-		$producer_user_ao	= array(
-			'UniqueId'				=> NULL,
-			'FirstName'				=> NULL,
-			'LastName'				=> NULL,
-			'Email'					=> NULL,
-			'DateAdded'				=> NULL,
-			'AllowPaymentOnAccount'	=> NULL,
-			'ActivePublic'			=> FALSE,
-			'ActiveAdmin'			=> FALSE,
-			'IsSupplier'			=> FALSE,
-			'IsProducer'			=> TRUE,
-			'PasswordHash'			=> NULL,
-			'PasswordSalt'			=> NULL,
-			'Username'				=> NULL,
-			'CompanyName'			=> $this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_producer'))->attribute_value,
-			'CompanyRegistration'	=> NULL,
-			'CompanyVatCode'		=> NULL,
-			'DiscountGroup'			=> NULL
-		);
+		$company_name = $this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_producer'))->attribute_value;
 		
-		return $producer_user_ao;
+		if(empty($company_name))
+		{
+			return NULL;
+		}
+		else
+		{
+			$producer_user_ao	= array(
+				'UniqueId'				=> NULL,
+				'FirstName'				=> NULL,
+				'LastName'				=> NULL,
+				'Email'					=> NULL,
+				'DateAdded'				=> NULL,
+				'AllowPaymentOnAccount'	=> NULL,
+				'ActivePublic'			=> FALSE,
+				'ActiveAdmin'			=> FALSE,
+				'IsSupplier'			=> FALSE,
+				'IsProducer'			=> TRUE,
+				'PasswordHash'			=> NULL,
+				'PasswordSalt'			=> NULL,
+				'Username'				=> NULL,
+				'CompanyName'			=> $company_name,
+				'CompanyRegistration'	=> NULL,
+				'CompanyVatCode'		=> NULL,
+				'DiscountGroup'			=> NULL
+			);
+			
+			return $producer_user_ao;
+		}
 	}
 	
 	/**
@@ -442,20 +474,25 @@ class Clcdesq_integration_lib
 	 * @param	int		$item_id	The unique identifier of the item to generate the ProductStatusProducerAO for.
 	 * @return	array				An associative array containing the ProductStatusProducerAO information.
 	 */
-	private function get_product_status_producer_ao_array(int $item_id)
+	private function get_product_status_producer_ao_array($item_id)
 	{
-		$product_status_producer_ao	= array(
-			'Id'							=> NULL,
-			'Name'							=> "Available or Order",
-			'DisplayStatus'					=> TRUE,
-			'DisplayProduct'				=> TRUE,
-			'AllowOrdering'					=> TRUE,
-			'AllowOrderingMinStockAmount'	=> 0,
-			'EnforceActualStock'			=> TRUE,
-			'DisplayStock'					=> TRUE,
-			'StatusExplanation'				=> NULL,
-			'StatusColorHex'				=> NULL
-		);
+		$product_status_producer_ao = NULL;
+		
+		if(!empty($this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_producer'))->attribute_value))
+		{
+			$product_status_producer_ao	= array(
+				'Id'							=> NULL,
+				'Name'							=> "Available or Order",
+				'DisplayStatus'					=> TRUE,
+				'DisplayProduct'				=> TRUE,
+				'AllowOrdering'					=> TRUE,
+				'AllowOrderingMinStockAmount'	=> 0,
+				'EnforceActualStock'			=> TRUE,
+				'DisplayStock'					=> TRUE,
+				'StatusExplanation'				=> NULL,
+				'StatusColorHex'				=> NULL
+			);
+		}
 		
 		return $product_status_producer_ao;
 	}
@@ -466,18 +503,27 @@ class Clcdesq_integration_lib
 	 * @param	int		$item_id	The unique identifier of the item to generate the ProductSeriesAO for.
 	 * @return	array				An associative array containing the ProductSeriesAO information.
 	 */
-	private function get_product_series_ao_array(int $item_id)
+	private function get_product_series_ao_array($item_id)
 	{
-		$product_series_ao	= array(
-			'Id'			=> NULL,
-			'UID'			=> NULL,
-			'Title'			=> $this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_series'))->attribute_value,
-			'Description'	=> NULL,
-			'DateAdded'		=> $this->get_date_added($item_id),
-			'Published'		=> TRUE
-		);
+		$title = $this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_series'))->attribute_value;
 		
-		return $product_series_ao;
+		if(empty($title))
+		{
+			return NULL;
+		}
+		else
+		{
+			$product_series_ao	= array(
+				'Id'			=> NULL,
+				'UID'			=> NULL,
+				'Title'			=> $title,
+				'Description'	=> NULL,
+				'DateAdded'		=> $this->get_date_added($item_id),
+				'Published'		=> TRUE
+			);
+			
+			return $product_series_ao;
+		}
 	}
 	
 	//TODO: We may want to move this to the Item_quantity model
@@ -511,29 +557,36 @@ class Clcdesq_integration_lib
 	 */
 	private function get_supplier_user_ao_array($supplier_id)
 	{
-		$supplier_info = $this->CI->Supplier->get_info($supplier_id);
-		
-		$supplier_user_ao	= array(
-			'UniqueId'				=> NULL,
-			'FirstName'				=> $supplier_info->first_name,
-			'LastName'				=> $supplier_info->last_name,
-			'Email'					=> $supplier_info->email,
-			'DateAdded'				=> NULL,
-			'AllowPaymentOnAccount'	=> NULL,
-			'ActivePublic'			=> FALSE,
-			'ActiveAdmin'			=> FALSE,
-			'IsSupplier'			=> TRUE,
-			'IsProducer'			=> FALSE,
-			'PasswordHash'			=> NULL,
-			'PasswordSalt'			=> NULL,
-			'Username'				=> NULL,
-			'CompanyName'			=> $supplier_info->company_name,
-			'CompanyRegistration'	=> NULL,
-			'CompanyVatCode'		=> $supplier_info->tax_id,
-			'DiscountGroup'			=> NULL
-		);
-		
-		return $supplier_user_ao;
+		if(!empty($supplier_id))
+		{
+			$supplier_info = $this->CI->Supplier->get_info($supplier_id);
+			
+			$supplier_user_ao	= array(
+				'UniqueId'				=> NULL,
+				'FirstName'				=> $supplier_info->first_name,
+				'LastName'				=> $supplier_info->last_name,
+				'Email'					=> $supplier_info->email,
+				'DateAdded'				=> NULL,
+				'AllowPaymentOnAccount'	=> NULL,
+				'ActivePublic'			=> FALSE,
+				'ActiveAdmin'			=> FALSE,
+				'IsSupplier'			=> TRUE,
+				'IsProducer'			=> FALSE,
+				'PasswordHash'			=> NULL,
+				'PasswordSalt'			=> NULL,
+				'Username'				=> NULL,
+				'CompanyName'			=> $supplier_info->company_name,
+				'CompanyRegistration'	=> NULL,
+				'CompanyVatCode'		=> $supplier_info->tax_id,
+				'DiscountGroup'			=> NULL
+			);
+			
+			return $supplier_user_ao;
+		}
+		else
+		{
+			return NULL;
+		}
 	}
 	
 	/**
@@ -550,18 +603,14 @@ class Clcdesq_integration_lib
 		}
 		else
 		{
-			//Products->$data['category']->$attribute['location']->$attribute->['category']
+			//$data['category']->$attribute['location']->$attribute->['category']
 			switch($level)
 			{
-				case 0:	//Products
-					$next_title = $this->CI->Item->get_info($item_id)->category;
-					break;
-					
-				case 1: //Category (Books, Media, Gifts, etc.)
+				case 0: //Category (Books, Media, Gifts, etc.)
 					$next_title = $this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_location'))->attribute_value;
 					break;
 					
-				case 2: //Location Attribute(Gift and Travel, Reference, Azerbaijani, etc.)
+				case 1: //Location Attribute(Gift and Travel, Reference, Azerbaijani, etc.)
 					$next_title = $this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_category'))->attribute_value;
 					break;
 					
@@ -573,7 +622,7 @@ class Clcdesq_integration_lib
 			$category_ao	= array(
 				'Id'	=> NULL,
 				'Title'	=> $title,
-				'children' => array('CategoryAO' => $this->get_category_ao_array($item_id, $next_title, $level+1))
+				'Children' => array($this->get_category_ao_array($item_id, $next_title, $level+1))
 			);
 		}
 		
