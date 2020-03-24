@@ -32,6 +32,12 @@ class Clcdesq_integration_lib
 		
 		$pushdata	= $this->populate_api_data($data);
 		
+		if (version_compare(phpversion(), '7.1', '>='))
+		{
+			ini_set( 'precision', 17 );
+			ini_set( 'serialize_precision', -1 );
+		}
+		
 		$json = json_encode($pushdata, JSON_UNESCAPED_UNICODE);
 		
 		$clcdesq_guid = $this->send_data($this->api_url, $this->api_key, $json);
@@ -206,9 +212,9 @@ class Clcdesq_integration_lib
 			'Subtitles'				=> $this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_subtitles'])->attribute_value,
 			'TeaserDescription'		=> $this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_teaserdescription'])->attribute_value,
 			'Title' 				=> $data['name'],
-			'UniqueId'				=> $this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_uniqueid'])->attribute_value,
+			'UniqueId'				=> $this->get_uniqueid($item_id, $config_data),
 			'UPC' 					=> $this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_upc'])->attribute_value,
-			'VatPercent'			=> (float)$this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_vatpercent'])->attribute_decimal,
+			'VatPercent'			=> (float)$this->CI->Item_taxes->get_info($item_id)[0]['percent'],
 			'VideoTrailerEmbedCode'	=> $data['videotrailerembedcode'],
 			'Weight'				=> (float)$this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_weight'])->attribute_decimal,
 			'WeightForShipping'		=> (float)$this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_weightforshipping'])->attribute_decimal,
@@ -220,6 +226,29 @@ class Clcdesq_integration_lib
 		$api_data = array('Products' => $this->array_filter_recursive($api_data));
 		
 		return $api_data;
+	}
+	
+	/**
+	 * Retrieves or creates Microsoft GUID v4 if it doesn't exist.
+	 *
+	 * @param	int		$item_id
+	 * @param	array	$config_data
+	 * @return	string	Microsoft GUID v4
+	 */
+	private function get_uniqueid($item_id, $config_data)
+	{
+		$unique_id = $this->CI->Attribute->get_attribute_value($item_id, $config_data['clcdesq_uniqueid'])->attribute_value;
+		if(empty($unique_id))
+		{
+			$data = openssl_random_pseudo_bytes(16);
+			$data[6] = chr(ord($data[6]) & 0x0f | 0x40);    // set version to 0100
+			$data[8] = chr(ord($data[8]) & 0x3f | 0x80);    // set bits 6-7 to 10
+			$unique_id = vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
+			
+			$this->CI->Attribute->save_value($unique_id, $config_data['clcdesq_uniqueid'], $item_id, FALSE, "TEXT");
+		}
+		
+		return $unique_id;
 	}
 	
 	/**
@@ -235,7 +264,7 @@ class Clcdesq_integration_lib
 		
 		if(!empty($release_date))
 		{
-			return date('Y-m-d\TH:i:s',strtotime());
+			return date('Y-m-d\TH:i:s',strtotime($release_date));
 		}
 		else
 		{
@@ -263,7 +292,7 @@ class Clcdesq_integration_lib
 		}
 		else
 		{
-			$contributor_ao	= array('ContributorAO' => array(
+			$contributor_ao	= array(array(
 				'Id'			=> null,
 				'Guid'			=> null,
 				'FirstName'		=> $author['first_name'],
@@ -644,7 +673,7 @@ class Clcdesq_integration_lib
 		
 		return $product_discount_group_ao;
 	}
-	
+
 	/**
 	 * Recursively filters out FALSE values (NULL, '' and 0) from Array
 	 *
