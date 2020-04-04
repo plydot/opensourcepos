@@ -150,9 +150,10 @@ class Tax_lib
 
 	public function get_included_tax($quantity, $price, $discount_percentage, $discount_type, $tax_percentage, $tax_decimal, $rounding_code)
 	{
-		$tax_amount = $this->CI->sale_lib->get_item_tax($quantity, $price, $discount_percentage, $discount_type, $tax_percentage);
-
-		return Rounding_mode::round_number($rounding_code, $tax_amount, $tax_decimal);
+		$item_total = $this->CI->sale_lib->get_item_total($quantity, $price, $discount_percentage, $discount_type, TRUE);
+		$tax_fraction = bcdiv(bcadd(100, $tax_percentage), 100);
+		$price_tax_excl = bcdiv($item_total, $tax_fraction);
+		return bcsub($item_total, $price_tax_excl);
 	}
 
 	/*
