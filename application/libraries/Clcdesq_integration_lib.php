@@ -70,7 +70,7 @@ class Clcdesq_integration_lib
 		log_message("ERROR", "Update Product JSON Results: $json");
 		log_message("ERROR", "API Results: $clcdesq_guid");
 		
-		//TODO: For now, the update product push is identical to the new product push except that we are sending the GUID
+//TODO: For now, the update product push is identical to the new product push.  This will be reworked once Partial Product Push API is implemented.
 		return NULL;
 	}
 	
@@ -80,29 +80,32 @@ class Clcdesq_integration_lib
 	 * @param	array	$data
 	 * @return 	boolean			TRUE is returned if the push was successful or FALSE if there was some error.
 	 */
-	public function delete_product_push(array $data)
+	public function delete_product_push(array $item_ids_to_delete)
 	{
 		if(!$this->is_enabled())
 		{
 			return NULL;
 		}
-		
-		$pushdata	= $this->populate_api_data($data);
-		
+
+		foreach($item_ids_to_delete as $item_id)
+		{
+			$item_data = json_decode(json_encode($this->CI->Item->get_info($item_id), JSON_UNESCAPED_UNICODE), true);
+
+			$pushdata	= $this->populate_api_data($item_data);
+
 		//Delete specific flags
-		$pushdata['Published'] 		= FALSE;
-		$pushdata['ShowOnWebsite']	= FALSE;
-		
-		$json = json_encode($pushdata);
-		$clcdesq_guid = $this->send_data($this->api_url, $this->api_key, $json);
-		
-		log_message("ERROR", "Delete Product JSON Results: $json");
-		log_message("ERROR", "API Results: $clcdesq_guid");
-		
-		//TODO: Figure out exactly what the results that it sends back are and return a failure on error.
+			$pushdata['Published'] 		= FALSE;
+			$pushdata['ShowOnWebsite']	= FALSE;
+
+			$json = json_encode($pushdata);
+			$clcdesq_guid = $this->send_data($this->api_url, $this->api_key, $json);
+
+			log_message("ERROR", "Delete Product JSON Results: $json");
+			log_message("ERROR", "API Results: $clcdesq_guid");
+		}
 		return NULL;
 	}
-	
+
 	/**
 	 * Checks to see if the CLCdesq Integration is enabled
 	 *
@@ -207,7 +210,7 @@ class Clcdesq_integration_lib
 			'StockCount'			=> $this->get_total_quantity($item_id),
 			'StockOnOrder'			=> (int)$this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_stockonorder'])->attribute_decimal,
 			'Supplier'				=> $this->get_supplier_user_ao_array($data['supplier_id']),
-			'ShowOnWebsite'			=> $this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_showonwebsite'])->attribute_value,
+			'ShowOnWebsite'			=> $this->get_show_on_website($item_id,$config_data),
 			'Subtitle'				=> $this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_subtitle'])->attribute_value,
 			'Subtitles'				=> $this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_subtitles'])->attribute_value,
 			'TeaserDescription'		=> $this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_teaserdescription'])->attribute_value,
@@ -227,7 +230,28 @@ class Clcdesq_integration_lib
 		
 		return $api_data;
 	}
-	
+
+	/**
+	 * Returns the boolean value of the show on website attribute or TRUE if the attribute does not exist
+	 *
+	 * @param	int		$item_id
+	 * @param 	array	$config_data	Array containing the values of the data in con
+	 * @return	boolean					Value of Show on website attribute or TRUE
+	 */
+	private function get_show_on_website($item_id, $config_data)
+	{
+		$show_on_website = $this->CI->Attribute->get_attribute_value($item_id, (int)$config_data['clcdesq_showonwebsite'])->attribute_value;
+
+		if($show_on_website == NULL)
+		{
+			return TRUE;
+		}
+		else
+		{
+			return $show_on_website ? TRUE : FALSE;
+		}
+	}
+
 	/**
 	 * Retrieves or creates Microsoft GUID v4 if it doesn't exist.
 	 *
@@ -507,7 +531,7 @@ class Clcdesq_integration_lib
 	{
 		$product_status_producer_ao = NULL;
 		
-		if(!empty($this->CI->Attribute->get_attribute_value($item_id, (int)$this->CI->Appconfig->get('clcdesq_producer'))->attribute_value))
+		if($data['deleted'] == FALSE)
 		{
 			$product_status_producer_ao	= array(
 				'Id'							=> NULL,

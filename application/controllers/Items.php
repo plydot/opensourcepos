@@ -133,7 +133,10 @@ class Items extends Secure_Controller
 		echo json_encode($suggestions);
 	}
 
+<<<<<<< Upstream, based on origin/master
 
+=======
+>>>>>>> 696f42e Implementing CLCdesq API Delete
 	public function suggest_low_sell()
 	{
 		$suggestions = $this->xss_clean($this->Item->get_low_sell_suggestions($this->input->post_get('name')));
@@ -141,7 +144,10 @@ class Items extends Secure_Controller
 		echo json_encode($suggestions);
 	}
 
+<<<<<<< Upstream, based on origin/master
 
+=======
+>>>>>>> 696f42e Implementing CLCdesq API Delete
 	public function suggest_kits()
 	{
 		$suggestions = $this->xss_clean($this->Item->get_kit_search_suggestions($this->input->post_get('term'),
@@ -251,15 +257,19 @@ class Items extends Secure_Controller
 				$item_info->tax_category_id = $this->config->item('default_tax_category');
 			}
 		}
-		
+
 		$data['standard_item_locked'] = ($data['item_kit_disabled'] && $item_info->item_type == ITEM_KIT
 			&& !$data['allow_temp_item']
 			&& !($this->config->item('derive_sale_quantity') == '1'));
+<<<<<<< Upstream, based on origin/master
 <<<<<<< Upstream, based on origin/master
 
 =======
 		
 >>>>>>> ffc50ac Latest testing and changes
+=======
+
+>>>>>>> 696f42e Implementing CLCdesq API Delete
 		$data['item_info'] = $item_info;
 
 		$suppliers = array('' => $this->lang->line('items_none'));
@@ -346,10 +356,12 @@ class Items extends Secure_Controller
 	public function inventory($item_id = -1)
 	{
 		$item_info = $this->Item->get_info($item_id);
+
 		foreach(get_object_vars($item_info) as $property => $value)
 		{
 			$item_info->$property = $this->xss_clean($value);
 		}
+
 		$data['item_info'] = $item_info;
 
 		$data['stock_locations'] = array();
@@ -369,10 +381,12 @@ class Items extends Secure_Controller
 	public function count_details($item_id = -1)
 	{
 		$item_info = $this->Item->get_info($item_id);
+
 		foreach(get_object_vars($item_info) as $property => $value)
 		{
 			$item_info->$property = $this->xss_clean($value);
 		}
+
 		$data['item_info'] = $item_info;
 
 		$data['stock_locations'] = array();
@@ -485,10 +499,14 @@ class Items extends Secure_Controller
 		$upload_success = $this->_handle_image_upload();
 		$upload_data = $this->upload->data();
 <<<<<<< Upstream, based on origin/master
+<<<<<<< Upstream, based on origin/master
 
 =======
 		
 >>>>>>> ffc50ac Latest testing and changes
+=======
+
+>>>>>>> 696f42e Implementing CLCdesq API Delete
 		$receiving_quantity = parse_decimals($this->input->post('receiving_quantity'));
 		$item_type = $this->input->post('item_type') == NULL ? ITEM : $this->input->post('item_type');
 
@@ -528,6 +546,7 @@ class Items extends Secure_Controller
 		}
 
 		$x = $this->input->post('tax_category_id');
+
 		if(!isset($x))
 		{
 			$item_data['tax_category_id'] = '';
@@ -583,7 +602,11 @@ class Items extends Secure_Controller
 				$success &= $this->Item_taxes->save($items_taxes_data, $item_id);
 			}
 
+<<<<<<< Upstream, based on origin/master
 		//Save item quantity
+=======
+			//Save item quantity
+>>>>>>> 696f42e Implementing CLCdesq API Delete
 			$stock_locations = $this->Stock_location->get_undeleted_all()->result_array();
 			foreach($stock_locations as $location)
 			{
@@ -596,7 +619,10 @@ class Items extends Secure_Controller
 					'location_id' => $location['location_id'],
 					'quantity' => $updated_quantity);
 
+<<<<<<< Upstream, based on origin/master
 
+=======
+>>>>>>> 696f42e Implementing CLCdesq API Delete
 				$item_quantity = $this->Item_quantity->get_item_quantity($item_id, $location['location_id']);
 				if($item_quantity->quantity != $updated_quantity || $new_item)
 				{
@@ -615,7 +641,11 @@ class Items extends Secure_Controller
 				}
 			}
 
+<<<<<<< Upstream, based on origin/master
 		// Save item attributes
+=======
+			// Save item attributes
+>>>>>>> 696f42e Implementing CLCdesq API Delete
 			$attribute_links = $this->input->post('attribute_links') != NULL ? $this->input->post('attribute_links') : array();
 			$attribute_ids = $this->input->post('attribute_ids');
 			$this->Attribute->delete_link($item_id);
@@ -636,10 +666,14 @@ class Items extends Secure_Controller
 
 				echo json_encode(array('success' => TRUE, 'message' => $message, 'id' => $item_id));
 <<<<<<< Upstream, based on origin/master
+<<<<<<< Upstream, based on origin/master
 
 			//Event triggers for Third-Party Integrations
 =======
 				
+=======
+
+>>>>>>> 696f42e Implementing CLCdesq API Delete
 				//Event triggers for Third-Party Integrations
 >>>>>>> ffc50ac Latest testing and changes
 				if($new_item)
@@ -665,7 +699,7 @@ class Items extends Secure_Controller
 					$event_failures = Events::Trigger('event_update', array("type"=> "ITEMS", "data" => $item_data), 'string');
 >>>>>>> ffc50ac Latest testing and changes
 				}
-				
+
 				if($event_failures)
 				{
 <<<<<<< Upstream, based on origin/master
@@ -834,14 +868,18 @@ class Items extends Secure_Controller
 			$message = $this->lang->line('items_successful_deleted') . ' ' . count($items_to_delete) . ' ' . $this->lang->line('items_one_or_multiple');
 			echo json_encode(array('success' => TRUE, 'message' => $message));
 <<<<<<< Upstream, based on origin/master
+<<<<<<< Upstream, based on origin/master
 
 		//Event triggers for Third-Party Integrations
 			Events::Trigger('event_delete', array("type"=> "ITEMS", "data" => $items_to_delete), 'string');
 =======
 			
+=======
+
+>>>>>>> 696f42e Implementing CLCdesq API Delete
 			//Event triggers for Third-Party Integrations
 			$event_failures = Events::Trigger('event_delete', array("type"=> "ITEMS", "data" => $items_to_delete), 'string');
-			
+
 			if($event_failures)
 			{
 				log_message("ERROR","Third-Party Integration failed during item delete: $event_failures");
@@ -865,7 +903,7 @@ class Items extends Secure_Controller
 		$data = generate_import_items_csv($allowed_locations,$allowed_attributes);
 		force_download($name, $data, TRUE);
 	}
-	
+
 	public function csv_import()
 	{
 		$this->load->view('items/form_csv_import', NULL);
@@ -936,6 +974,7 @@ class Items extends Secure_Controller
 						$this->save_inventory_quantities($line, $item_data);
 						$this->save_attribute_data($line, $item_data);
 <<<<<<< Upstream, based on origin/master
+<<<<<<< Upstream, based on origin/master
 
 =======
 						
@@ -943,6 +982,9 @@ class Items extends Secure_Controller
 >>>>>>> 238f25a Implementing 3rd Party Integrations Event Generator
 					//Event triggers for Third-Party Integrations
 =======
+=======
+
+>>>>>>> 696f42e Implementing CLCdesq API Delete
 						//Event triggers for Third-Party Integrations
 >>>>>>> ffc50ac Latest testing and changes
 						if($this->Item->item_number_exists($item_number))
@@ -968,7 +1010,7 @@ class Items extends Secure_Controller
 							$event_failures = Events::Trigger('event_create', array("type"=> "ITEMS", "data" => $item_data), 'string');
 >>>>>>> ffc50ac Latest testing and changes
 						}
-						
+
 						if($event_failures)
 						{
 <<<<<<< Upstream, based on origin/master
@@ -1147,7 +1189,7 @@ class Items extends Secure_Controller
 				'item_id' => $item_data['item_id'],
 				'location_id' => $location_id
 			);
-			
+
 			$csv_data = array(
 				'trans_items' => $item_data['item_id'],
 				'trans_user' => $employee_id,
@@ -1159,7 +1201,7 @@ class Items extends Secure_Controller
 			{
 				$item_quantity_data['quantity'] = $line['location_' . $location_name];
 				$this->Item_quantity->save($item_quantity_data, $item_data['item_id'], $location_id);
-				
+
 				$csv_data['trans_inventory'] = $line['location_' . $location_name];
 				$this->Inventory->insert($csv_data);
 			}
@@ -1167,7 +1209,7 @@ class Items extends Secure_Controller
 			{
 				$item_quantity_data['quantity'] = 0;
 				$this->Item_quantity->save($item_quantity_data, $item_data['item_id'], $line[$col]);
-				
+
 				$csv_data['trans_inventory'] = 0;
 				$this->Inventory->insert($csv_data);
 			}
@@ -1199,7 +1241,10 @@ class Items extends Secure_Controller
 		}
 	}
 
+<<<<<<< Upstream, based on origin/master
 
+=======
+>>>>>>> 696f42e Implementing CLCdesq API Delete
 	/**
 	 * Guess whether file extension is not in the table field, if it isn't, then it's an old-format (formerly pic_id) field, so we guess the right filename and update the table
 	 *
