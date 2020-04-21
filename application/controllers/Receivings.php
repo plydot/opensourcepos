@@ -254,12 +254,7 @@ class Receivings extends Secure_Controller
 		{
 			$data['barcode'] = $this->barcode_lib->generate_receipt_barcode($data['receiving_id']);				
 			
-			$event_failures = Events::Trigger('event_update', array("type"=> "RECEIVINGS", "data" => $data), 'string');
-			
-			if($event_failures)
-			{
-			    log_message("ERROR","Third-Party Integration failed during Receiving: $event_failures");
-			}
+			Events::Trigger('event_update', array("type"=> "RECEIVINGS", "data" => $data), 'string');
 		}
 
 		$data['print_after_sale'] = $this->receiving_lib->is_print_after_sale();
