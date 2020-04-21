@@ -51,10 +51,6 @@ class Attribute extends CI_Model
 		else
 		{
 			$this->db->where('definition_id', $definition_id);
-<<<<<<< Upstream, based on origin/master
-=======
-			
->>>>>>> ffc50ac Latest testing and changes
 		}
 
 		$this->db->where('item_id', $item_id);
@@ -99,13 +95,8 @@ class Attribute extends CI_Model
 		{
 		//Get empty base parent object, as $item_id is NOT an item
 			$item_obj = new stdClass();
-<<<<<<< Upstream, based on origin/master
 
 		//Get all the fields from items table
-=======
-			
-			//Get all the fields from items table
->>>>>>> ffc50ac Latest testing and changes
 			foreach($this->db->list_fields('attribute_definitions') as $field)
 			{
 				$item_obj->$field = '';
@@ -203,13 +194,8 @@ class Attribute extends CI_Model
 		
 		return $this->_to_array($results, 'definition_id', 'definition_name');
 	}
-<<<<<<< Upstream, based on origin/master
 
-=======
-	
-	
->>>>>>> ffc50ac Latest testing and changes
-	/**
+/**
 	 * Returns an array of attribute definition names and IDs
 	 *
 	 * @param 	boolean		$groups		If FALSE does not return GROUP type attributes in the array
@@ -318,13 +304,8 @@ class Attribute extends CI_Model
 	private function convert_definition_type($definition_id, $from_type, $to_type)
 	{
 		$success = FALSE;
-<<<<<<< Upstream, based on origin/master
 
 	//From TEXT
-=======
-		
-		//From TEXT to DATETIME
->>>>>>> ffc50ac Latest testing and changes
 		if($from_type === TEXT)
 		{
 		//To DATETIME or DECIMAL
@@ -369,16 +350,10 @@ class Attribute extends CI_Model
 				$this->db->trans_complete();
 			}
 		}
-<<<<<<< Upstream, based on origin/master
 
 	//From DROPDOWN
-=======
-		
-		//From DROPDOWN to TEXT
->>>>>>> ffc50ac Latest testing and changes
 		else if($from_type === DROPDOWN)
 		{
-<<<<<<< Upstream, based on origin/master
 		//To TEXT
 			if(in_array($to_type, [TEXT, CHECKBOX], TRUE))
 			{
@@ -408,25 +383,19 @@ class Attribute extends CI_Model
 					$this->db->trans_complete();
 				}
 			}
-=======
-			//From DROPDOWN to TEXT
+
+		//From DROPDOWN to TEXT
 			$this->db->trans_start();
-			
+
 			$this->db->from('ospos_attribute_links');
 			$this->db->where('definition_id',$definition_id);
 			$this->db->where('item_id', NULL);
 			$success = $this->db->delete();
 			
 			$this->db->trans_complete();
->>>>>>> ffc50ac Latest testing and changes
 		}
-<<<<<<< Upstream, based on origin/master
 
 	//From any other type
-=======
-		
-		//Any other allowed conversion does not get checked here
->>>>>>> ffc50ac Latest testing and changes
 		else
 		{
 			$success = TRUE;
@@ -434,7 +403,6 @@ class Attribute extends CI_Model
 		
 		return $success;
 	}
-<<<<<<< Upstream, based on origin/master
 
 	private function checkbox_attribute_values($definition_id)
 	{
@@ -454,9 +422,6 @@ class Attribute extends CI_Model
 		return array($zero_attribute_id, $one_attribute_id);
 	}
 
-=======
-	
->>>>>>> ffc50ac Latest testing and changes
 	/*
 	 Inserts or updates a definition
 	 */
@@ -464,25 +429,15 @@ class Attribute extends CI_Model
 	{
 	//Run these queries as a transaction, we want to make sure we do all or nothing
 		$this->db->trans_start();
-<<<<<<< Upstream, based on origin/master
 
 	//Definition doesn't exist
-=======
-		
-		//Definition doesn't exist
->>>>>>> ffc50ac Latest testing and changes
 		if($definition_id === -1 || !$this->exists($definition_id))
 		{
 			$success = $this->db->insert('attribute_definitions', $definition_data);
 			$definition_data['definition_id'] = $this->db->insert_id();
 		}
-<<<<<<< Upstream, based on origin/master
 
 	//Definition already exists
-=======
-		
-		//Definition already exists
->>>>>>> ffc50ac Latest testing and changes
 		else
 		{
 			$this->db->select('definition_type, definition_name');
@@ -640,19 +595,11 @@ class Attribute extends CI_Model
 	public function save_value($attribute_value, $definition_id, $item_id = FALSE, $attribute_id = FALSE, $definition_type = DROPDOWN)
 	{
 		$this->db->trans_start();
-<<<<<<< Upstream, based on origin/master
 
 	//New Attribute
-=======
-		
->>>>>>> ffc50ac Latest testing and changes
 		if(empty($attribute_id) || empty($item_id))
 		{
-<<<<<<< Upstream, based on origin/master
 			if(in_array($definition_type, [TEXT, DROPDOWN, CHECKBOX], TRUE))
-=======
-			if(in_array($definition_type, [TEXT, DROPDOWN], TRUE))
->>>>>>> ffc50ac Latest testing and changes
 			{
 				$attribute_id = $this->value_exists($attribute_value);
 				
@@ -669,7 +616,7 @@ class Attribute extends CI_Model
 			{
 				$this->db->insert('attribute_values', array('attribute_date' => date('Y-m-d', strtotime($attribute_value))));
 			}
-			
+
 			$attribute_id = $attribute_id ? $attribute_id : $this->db->insert_id();
 
 			$this->db->insert('attribute_links', array(
@@ -682,11 +629,7 @@ class Attribute extends CI_Model
 		else
 		{
 			$this->db->where('attribute_id', $attribute_id);
-<<<<<<< Upstream, based on origin/master
 
-=======
-			
->>>>>>> ffc50ac Latest testing and changes
 			if(in_array($definition_type, [TEXT, DROPDOWN], TRUE))
 			{
 				$this->db->update('attribute_values', array('attribute_value' => $attribute_value));
@@ -711,7 +654,7 @@ class Attribute extends CI_Model
 		return $this->db->query("DELETE atrv, atrl FROM " . $this->db->dbprefix('attribute_values') . " atrv, " . $this->db->dbprefix('attribute_links') .  " atrl " .
 			"WHERE atrl.attribute_id = atrv.attribute_id AND atrv.attribute_value = " . $this->db->escape($attribute_value) . " AND atrl.definition_id = " . $this->db->escape($definition_id));
 	}
-	
+
 	/**
 	 * Deletes an Attribute definition from the database and associated column in the items_import.csv
 	 *
