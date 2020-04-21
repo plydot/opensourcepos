@@ -82,6 +82,15 @@
 				</div>
 			</div>
 
+			<div class="form-group form-group-sm">
+				<?php echo form_label($this->lang->line('config_clcdesq_utilities'), 'config_clcdesq_items_upload', array('class' => 'control-label col-xs-2')); ?>
+				<div class='col-xs-2'>
+					<div id="items_upload" class="btn btn-default btn-sm">
+						<span style="top:22%;"><?php echo $this->lang->line('config_clcdesq_items_upload'); ?></span>
+					</div>
+				</div>
+			</div>
+
 			<div class="form-group form-group-sm"><?php echo form_label($this->lang->line('config_clcdesq_source'), 'clcdesq_clcdesqsource_id', array('class' => 'control-label col-xs-2','style' => 'text-decoration:underline;')); ?></div>
 			<div class="form-group form-group-sm">
 				<?php echo form_label($this->lang->line('config_clcdesq_aspectratio'), 'clcdesq_aspectratio_id', array('class' => 'control-label col-xs-2')); ?>
@@ -214,6 +223,19 @@
 							$clcdesq['available_attributes'],
 							$clcdesq['category_attribute'],
 							array('id' => 'clcdesq_category_id', 'class' => 'form-control input-sm')); ?>
+					</div>
+				</div>
+			</div>
+
+			<div class="form-group form-group-sm">
+				<?php echo form_label($this->lang->line('config_clcdesq_condition'), 'clcdesq_condition_id', array('class' => 'control-label col-xs-2')); ?>
+				<div class='col-xs-4'>
+					<div class="input-group">
+						<span class="input-group-addon input-sm"><span class="glyphicon glyphicon-folder-open"></span></span>
+						<?php echo form_dropdown('clcdesq_condition_id',
+							$clcdesq['available_attributes'],
+							$clcdesq['condition_attribute'],
+							array('id' => 'clcdesq_condition_id', 'class' => 'form-control input-sm')); ?>
 					</div>
 				</div>
 			</div>
@@ -605,6 +627,10 @@ $(document).ready(function()
 	})();
 
 	$("#clcdesq_enable").change(enable_disable_config_clcdesq_enable);
+
+	$("#items_upload").click(function() {
+		window.location='<?php echo site_url('config/initial_items_upload') ?>';
+	});
 
 	$('#integrations_config_form').validate($.extend(form_support.handler, {
 		submitHandler: function(form) {

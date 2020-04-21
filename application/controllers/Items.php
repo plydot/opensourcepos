@@ -133,10 +133,6 @@ class Items extends Secure_Controller
 		echo json_encode($suggestions);
 	}
 
-<<<<<<< Upstream, based on origin/master
-
-=======
->>>>>>> 696f42e Implementing CLCdesq API Delete
 	public function suggest_low_sell()
 	{
 		$suggestions = $this->xss_clean($this->Item->get_low_sell_suggestions($this->input->post_get('name')));
@@ -144,10 +140,6 @@ class Items extends Secure_Controller
 		echo json_encode($suggestions);
 	}
 
-<<<<<<< Upstream, based on origin/master
-
-=======
->>>>>>> 696f42e Implementing CLCdesq API Delete
 	public function suggest_kits()
 	{
 		$suggestions = $this->xss_clean($this->Item->get_kit_search_suggestions($this->input->post_get('term'),
@@ -261,15 +253,7 @@ class Items extends Secure_Controller
 		$data['standard_item_locked'] = ($data['item_kit_disabled'] && $item_info->item_type == ITEM_KIT
 			&& !$data['allow_temp_item']
 			&& !($this->config->item('derive_sale_quantity') == '1'));
-<<<<<<< Upstream, based on origin/master
-<<<<<<< Upstream, based on origin/master
 
-=======
-		
->>>>>>> ffc50ac Latest testing and changes
-=======
-
->>>>>>> 696f42e Implementing CLCdesq API Delete
 		$data['item_info'] = $item_info;
 
 		$suppliers = array('' => $this->lang->line('items_none'));
@@ -356,12 +340,10 @@ class Items extends Secure_Controller
 	public function inventory($item_id = -1)
 	{
 		$item_info = $this->Item->get_info($item_id);
-
 		foreach(get_object_vars($item_info) as $property => $value)
 		{
 			$item_info->$property = $this->xss_clean($value);
 		}
-
 		$data['item_info'] = $item_info;
 
 		$data['stock_locations'] = array();
@@ -381,12 +363,10 @@ class Items extends Secure_Controller
 	public function count_details($item_id = -1)
 	{
 		$item_info = $this->Item->get_info($item_id);
-
 		foreach(get_object_vars($item_info) as $property => $value)
 		{
 			$item_info->$property = $this->xss_clean($value);
 		}
-
 		$data['item_info'] = $item_info;
 
 		$data['stock_locations'] = array();
@@ -498,15 +478,7 @@ class Items extends Secure_Controller
 	{
 		$upload_success = $this->_handle_image_upload();
 		$upload_data = $this->upload->data();
-<<<<<<< Upstream, based on origin/master
-<<<<<<< Upstream, based on origin/master
 
-=======
-		
->>>>>>> ffc50ac Latest testing and changes
-=======
-
->>>>>>> 696f42e Implementing CLCdesq API Delete
 		$receiving_quantity = parse_decimals($this->input->post('receiving_quantity'));
 		$item_type = $this->input->post('item_type') == NULL ? ITEM : $this->input->post('item_type');
 
@@ -546,7 +518,6 @@ class Items extends Secure_Controller
 		}
 
 		$x = $this->input->post('tax_category_id');
-
 		if(!isset($x))
 		{
 			$item_data['tax_category_id'] = '';
@@ -602,11 +573,7 @@ class Items extends Secure_Controller
 				$success &= $this->Item_taxes->save($items_taxes_data, $item_id);
 			}
 
-<<<<<<< Upstream, based on origin/master
 		//Save item quantity
-=======
-			//Save item quantity
->>>>>>> 696f42e Implementing CLCdesq API Delete
 			$stock_locations = $this->Stock_location->get_undeleted_all()->result_array();
 			foreach($stock_locations as $location)
 			{
@@ -619,10 +586,6 @@ class Items extends Secure_Controller
 					'location_id' => $location['location_id'],
 					'quantity' => $updated_quantity);
 
-<<<<<<< Upstream, based on origin/master
-
-=======
->>>>>>> 696f42e Implementing CLCdesq API Delete
 				$item_quantity = $this->Item_quantity->get_item_quantity($item_id, $location['location_id']);
 				if($item_quantity->quantity != $updated_quantity || $new_item)
 				{
@@ -641,11 +604,7 @@ class Items extends Secure_Controller
 				}
 			}
 
-<<<<<<< Upstream, based on origin/master
 		// Save item attributes
-=======
-			// Save item attributes
->>>>>>> 696f42e Implementing CLCdesq API Delete
 			$attribute_links = $this->input->post('attribute_links') != NULL ? $this->input->post('attribute_links') : array();
 			$attribute_ids = $this->input->post('attribute_ids');
 			$this->Attribute->delete_link($item_id);
@@ -665,49 +624,15 @@ class Items extends Secure_Controller
 				$message = $this->xss_clean($this->lang->line('items_successful_' . ($new_item ? 'adding' : 'updating')) . ' ' . $item_data['name']);
 
 				echo json_encode(array('success' => TRUE, 'message' => $message, 'id' => $item_id));
-<<<<<<< Upstream, based on origin/master
-<<<<<<< Upstream, based on origin/master
 
 			//Event triggers for Third-Party Integrations
-=======
-				
-=======
-
->>>>>>> 696f42e Implementing CLCdesq API Delete
-				//Event triggers for Third-Party Integrations
->>>>>>> ffc50ac Latest testing and changes
 				if($new_item)
 				{
-<<<<<<< Upstream, based on origin/master
-<<<<<<< Upstream, based on origin/master
 					Events::Trigger('event_create', array("type"=> "ITEMS", "data" => array($item_data)), 'string');
-=======
-				    $event_failures = Events::Trigger('event_create', array("type"=> "ITEMS", "data" => $item_data), 'string');
->>>>>>> 238f25a Implementing 3rd Party Integrations Event Generator
-=======
-					$event_failures = Events::Trigger('event_create', array("type"=> "ITEMS", "data" => $item_data), 'string');
->>>>>>> ffc50ac Latest testing and changes
 				}
 				else
 				{
-<<<<<<< Upstream, based on origin/master
-<<<<<<< Upstream, based on origin/master
 					Events::Trigger('event_update', array("type"=> "ITEMS", "data" => array($item_data)), 'string');
-=======
-				    $event_failures = Events::Trigger('event_update', array("type"=> "ITEMS", "data" => $item_data), 'string');
-=======
-					$event_failures = Events::Trigger('event_update', array("type"=> "ITEMS", "data" => $item_data), 'string');
->>>>>>> ffc50ac Latest testing and changes
-				}
-
-				if($event_failures)
-				{
-<<<<<<< Upstream, based on origin/master
-				    log_message("ERROR","Third-Party Integration failed during item save: $event_failures");
->>>>>>> 238f25a Implementing 3rd Party Integrations Event Generator
-=======
-					log_message("ERROR","Third-Party Integration failed during item save: $event_failures");
->>>>>>> ffc50ac Latest testing and changes
 				}
 			}
 			else
@@ -867,24 +792,9 @@ class Items extends Secure_Controller
 		{
 			$message = $this->lang->line('items_successful_deleted') . ' ' . count($items_to_delete) . ' ' . $this->lang->line('items_one_or_multiple');
 			echo json_encode(array('success' => TRUE, 'message' => $message));
-<<<<<<< Upstream, based on origin/master
-<<<<<<< Upstream, based on origin/master
 
 		//Event triggers for Third-Party Integrations
 			Events::Trigger('event_delete', array("type"=> "ITEMS", "data" => $items_to_delete), 'string');
-=======
-			
-=======
-
->>>>>>> 696f42e Implementing CLCdesq API Delete
-			//Event triggers for Third-Party Integrations
-			$event_failures = Events::Trigger('event_delete', array("type"=> "ITEMS", "data" => $items_to_delete), 'string');
-
-			if($event_failures)
-			{
-				log_message("ERROR","Third-Party Integration failed during item delete: $event_failures");
-			}
->>>>>>> 238f25a Implementing 3rd Party Integrations Event Generator
 		}
 		else
 		{
@@ -973,52 +883,15 @@ class Items extends Secure_Controller
 						$this->save_tax_data($line, $item_data);
 						$this->save_inventory_quantities($line, $item_data);
 						$this->save_attribute_data($line, $item_data);
-<<<<<<< Upstream, based on origin/master
-<<<<<<< Upstream, based on origin/master
 
-=======
-						
-<<<<<<< Upstream, based on origin/master
->>>>>>> 238f25a Implementing 3rd Party Integrations Event Generator
 					//Event triggers for Third-Party Integrations
-=======
-=======
-
->>>>>>> 696f42e Implementing CLCdesq API Delete
-						//Event triggers for Third-Party Integrations
->>>>>>> ffc50ac Latest testing and changes
 						if($this->Item->item_number_exists($item_number))
 						{
-<<<<<<< Upstream, based on origin/master
-<<<<<<< Upstream, based on origin/master
 							Events::Trigger('event_update', array("type"=> "ITEMS", "data" => $item_data), 'string');
-=======
-						    $event_failures = Events::Trigger('event_update', array("type"=> "ITEMS", "data" => $item_data), 'string');
->>>>>>> 238f25a Implementing 3rd Party Integrations Event Generator
-=======
-							$event_failures = Events::Trigger('event_update', array("type"=> "ITEMS", "data" => $item_data), 'string');
->>>>>>> ffc50ac Latest testing and changes
 						}
 						else
 						{
-<<<<<<< Upstream, based on origin/master
-<<<<<<< Upstream, based on origin/master
 							Events::Trigger('event_create', array("type"=> "ITEMS", "data" => $item_data), 'string');
-=======
-						    $event_failures = Events::Trigger('event_create', array("type"=> "ITEMS", "data" => $item_data), 'string');
-=======
-							$event_failures = Events::Trigger('event_create', array("type"=> "ITEMS", "data" => $item_data), 'string');
->>>>>>> ffc50ac Latest testing and changes
-						}
-
-						if($event_failures)
-						{
-<<<<<<< Upstream, based on origin/master
-						    log_message("ERROR","Third-Party Integration failed during CSV Import: $event_failures");
->>>>>>> 238f25a Implementing 3rd Party Integrations Event Generator
-=======
-							log_message("ERROR","Third-Party Integration failed during CSV Import: $event_failures");
->>>>>>> ffc50ac Latest testing and changes
 						}
 					}
 					else //insert or update item failure
@@ -1241,10 +1114,6 @@ class Items extends Secure_Controller
 		}
 	}
 
-<<<<<<< Upstream, based on origin/master
-
-=======
->>>>>>> 696f42e Implementing CLCdesq API Delete
 	/**
 	 * Guess whether file extension is not in the table field, if it isn't, then it's an old-format (formerly pic_id) field, so we guess the right filename and update the table
 	 *
