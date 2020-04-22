@@ -69,7 +69,7 @@ class Clcdesq_integration_lib
 			ini_set( 'serialize_precision', -1 );
 		}
 
-		$json = json_encode($pushdata);
+		$json = json_encode($pushdata, JSON_UNESCAPED_UNICODE);
 
 		$clcdesq_guid = $this->send_data($this->api_url, $this->api_key, $json);
 
@@ -112,7 +112,7 @@ class Clcdesq_integration_lib
 			$product['ShowOnWebsite']	= FALSE;
 		}
 
-		$json = json_encode($pushdata);
+		$json = json_encode($pushdata, JSON_UNESCAPED_UNICODE);
 		$clcdesq_guid = $this->send_data($this->api_url, $this->api_key, $json);
 
 		log_message("ERROR", "Delete Product JSON Results: $json");
