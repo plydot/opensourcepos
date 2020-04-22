@@ -373,27 +373,16 @@ class Attribute extends CI_Model
 
 					$this->db->trans_start();
 
-					$query = 'UPDATE ospos_attribute_values values ';
+					$query = 'UPDATE ospos_attribute_values vals ';
 					$query .= 'INNER JOIN ospos_attribute_links links ';
-					$query .= 'ON values.attribute_id = links.attribute_id ';
-					$query .= "SET links.attribute_id = IF((values.attribute_value IN('FALSE','0','') OR (values.attribute_value IS NULL)), $checkbox_attribute_values[0], $checkbox_attribute_values[1]) ";
-					$query .= 'WHERE definition_id = ' . $this->db->escape($definition_id);
+					$query .= 'ON vals.attribute_id = links.attribute_id ';
+					$query .= "SET links.attribute_id = IF((vals.attribute_value IN('FALSE','0','') OR (vals.attribute_value IS NULL)), $checkbox_attribute_values[0], $checkbox_attribute_values[1]) ";
+					$query .= 'WHERE links.definition_id = ' . $this->db->escape($definition_id);
 					$success = $this->db->query($query);
 
 					$this->db->trans_complete();
 				}
 			}
-
-		//From DROPDOWN to TEXT
-			$this->db->trans_start();
-
-			$this->db->from('ospos_attribute_links');
-			$this->db->where('definition_id',$definition_id);
-			$this->db->where('item_id', NULL);
-			$success = $this->db->delete();
-			
-			$this->db->trans_complete();
-		}
 
 	//From any other type
 		else
