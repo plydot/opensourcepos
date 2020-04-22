@@ -285,13 +285,8 @@ class Clcdesq_integration_lib
 		{
 			return TRUE;
 		}
-		elseif($show_on_website == 'FALSE')
-		{
-			return FALSE;
-		}
-		{
-			return $show_on_website ? TRUE : FALSE;
-		}
+
+		return $show_on_website ? TRUE : FALSE;
 	}
 
 	/**
