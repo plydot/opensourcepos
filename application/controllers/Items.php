@@ -792,7 +792,7 @@ class Items extends Secure_Controller
 	}
 
 	/*
-	 Items import from csv spreadsheet
+	 * Generates Items import Comma Separated Values (CSV) and forces the download
 	 */
 	public function csv()
 	{
@@ -831,8 +831,10 @@ class Items extends Secure_Controller
 					$invalidated	= FALSE;
 
 					$line = array_combine($keys,$this->xss_clean($line_array[$i]));	//Build a XSS-cleaned associative array with the row to use to assign values
-					
-					$item_data = array(
+
+					$item_id	= $line['item_id'];
+					$item_data	= array(
+						'item_id'				=> $line['item_id'],
 						'name'					=> $line['Item Name'],
 						'description'			=> $line['Description'],
 						'category'				=> $line['Category'],
@@ -846,12 +848,10 @@ class Items extends Secure_Controller
 						'pic_filename'			=> $line['item_image']
 					);
 
-					$item_number 				= $line['Barcode'];
-					
-					if(!empty($item_number))
+					if(!empty($line['Barcode']))
 					{
-						$item_data['item_number'] = $item_number;
-						$invalidated = $this->Item->item_number_exists($item_number);
+						$item_data['item_number'] = $line['Barcode'];
+						$invalidated = $this->Item->item_number_exists($item_data['item_number']);	//This will always return false if "duplicate barcodes" is enabled.
 					}
 
 				//Sanity check of data
@@ -867,8 +867,6 @@ class Items extends Secure_Controller
 						$this->save_inventory_quantities($line, $item_data);
 						$this->save_attribute_data($line, $item_data);
 					}
-				
-				//Insert or update item failure
 					else
 					{
 						$failed_row = $i+1;
@@ -906,6 +904,8 @@ class Items extends Secure_Controller
 	 */
 	private function data_error_check($line, $item_data)
 	{
+		$is_update = $item_data['item_id'] ? TRUE : FALSE;
+
 	//Check for empty required fields
 		$check_for_empty = array(
 			$item_data['name'],
@@ -915,15 +915,18 @@ class Items extends Secure_Controller
 
 		foreach($check_for_empty as $key => $val)
 		{
-			if (empty($val))
+			if (empty($val) && !$is_update)
 			{
 				log_message("ERROR","Empty required value");
 				return TRUE;	//Return fail on empty required fields
 			}
 		}
 
-		$item_data['cost_price'] = empty($item_data['cost_price']) ? 0 : 1;	//Allow for zero wholesale price
-
+		if(!$is_update)
+		{
+			$item_data['cost_price'] = empty($item_data['cost_price']) ? 0 : $item_data['cost_price'];	//Allow for zero wholesale price
+		}
+		
 	//Build array of fields to check for numerics
 		$check_for_numeric_values = array(
 			$item_data['cost_price'],
@@ -1029,13 +1032,13 @@ class Items extends Secure_Controller
 						$line['attribute_' . $definition_name] = '1';
 					}
 
-					$status = $this->Attribute->save_value($line['attribute_' . $definition_name], $attribute_data['definition_id'], $item_data['item_id'], FALSE, $attribute_data['definition_type']);
+					$status = $this->Attribute->save_value($line['attribute_' . $definition_name], $attribute_data['definition_id'], $item_data['item_id'], $this->Attribute->value_exists($line['attribute_' . $definition_name]), $attribute_data['definition_type']);
 				}
 			
 			//All other Attribute types (0 value means attribute not created)
 				elseif(!empty($line['attribute_' . $definition_name]))
 				{
-					$status = $this->Attribute->save_value($line['attribute_' . $definition_name], $attribute_data['definition_id'], $item_data['item_id'], FALSE, $attribute_data['definition_type']);
+					$status = $this->Attribute->save_value($line['attribute_' . $definition_name], $attribute_data['definition_id'], $item_data['item_id'], $this->Attribute->value_exists($line['attribute_' . $definition_name]), $attribute_data['definition_type']);
 				}
 
 				if($status === FALSE)
