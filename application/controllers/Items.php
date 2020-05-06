@@ -1046,7 +1046,7 @@ class Items extends Secure_Controller
 
 					$status = $this->Attribute->save_value($line['attribute_' . $definition_name], $attribute_data['definition_id'], $item_data['item_id'], $this->Attribute->value_exists($line['attribute_' . $definition_name]), $attribute_data['definition_type']);
 				}
-			
+
 			//All other Attribute types (0 value means attribute not created)
 				elseif(!empty($line['attribute_' . $definition_name]))
 				{
@@ -1057,6 +1057,8 @@ class Items extends Secure_Controller
 				{
 					return TRUE;
 				}
+
+				return $this->Attribute->save_link($item_data['item_id'], $attribute_data['definition_id'], $this->Attribute->value_exists($line['attribute_' . $definition_name]));
 			}
 		}
 	}
