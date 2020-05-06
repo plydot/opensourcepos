@@ -256,7 +256,7 @@ class Items extends Secure_Controller
 		$data['item_info'] = $item_info;
 
 		$suppliers = array('' => $this->lang->line('items_none'));
-		
+
 		foreach($this->Supplier->get_all()->result_array() as $row)
 		{
 			$suppliers[$this->xss_clean($row['person_id'])] = $this->xss_clean($row['company_name']);
@@ -301,7 +301,7 @@ class Items extends Secure_Controller
 
 		$data['logo_exists'] = $item_info->pic_filename != '';
 		$ext = pathinfo($item_info->pic_filename, PATHINFO_EXTENSION);
-		
+
 		if($ext == '')
 		{
 		//If file extension is not found guess it (legacy)
@@ -545,7 +545,7 @@ class Items extends Secure_Controller
 		{
 			$success = TRUE;
 			$new_item = FALSE;
-		
+
 		//New item
 			if($item_id == -1)
 			{
@@ -834,7 +834,7 @@ class Items extends Secure_Controller
 
 					$item_id	= $line['item_id'];
 					$item_data	= array(
-						'item_id'				=> $line['item_id'],
+						'item_id'				=> $item_id,
 						'name'					=> $line['Item Name'],
 						'description'			=> $line['Description'],
 						'category'				=> $line['Category'],
@@ -842,11 +842,21 @@ class Items extends Secure_Controller
 						'unit_price'			=> $line['Unit Price'],
 						'reorder_level'			=> $line['Reorder Level'],
 						'supplier_id'			=> $this->Supplier->exists($line['Supplier ID']) ? $line['Supplier ID'] : NULL,
-						'allow_alt_description'	=> empty($line['Allow Alt Description'])? '0' : '1',
-						'is_serialized'			=> empty($line['Item has Serial Number'])? '0' : '1',
 						'hsn_code'				=> $line['HSN'],
 						'pic_filename'			=> $line['item_image']
 					);
+
+				//Allow for empty fields on update import
+					if(!empty($item_id))
+					{
+						$item_data['allow_alt_description']	= $line['Allow Alt Description'];
+						$item_data['is_serialized']			= $line['Item has Serial Number'];
+					}
+					else
+					{
+						$item_data['allow_alt_description']	= empty($line['Allow Alt Description'])? '0' : '1';
+						$item_data['is_serialized']			= empty($line['Item has Serial Number'])? '0' : '1';
+					}
 
 					if(!empty($line['Barcode']))
 					{
@@ -861,11 +871,13 @@ class Items extends Secure_Controller
 					}
 
 				//Save to database
-					if(!$invalidated && $this->Item->save($item_data))
+					$item_data = $this->item_lib->custom_array_filter($item_data);
+
+					if(!$invalidated && $this->Item->save($item_data, $item_id))
 					{
 						$this->save_tax_data($line, $item_data);
 						$this->save_inventory_quantities($line, $item_data);
-						$this->save_attribute_data($line, $item_data);
+						$invalidated = $this->save_attribute_data($line, $item_data);
 					}
 					else
 					{
@@ -926,7 +938,7 @@ class Items extends Secure_Controller
 		{
 			$item_data['cost_price'] = empty($item_data['cost_price']) ? 0 : $item_data['cost_price'];	//Allow for zero wholesale price
 		}
-		
+
 	//Build array of fields to check for numerics
 		$check_for_numeric_values = array(
 			$item_data['cost_price'],
@@ -1043,7 +1055,7 @@ class Items extends Secure_Controller
 
 				if($status === FALSE)
 				{
-					return FALSE;
+					return TRUE;
 				}
 			}
 		}

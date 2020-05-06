@@ -139,7 +139,7 @@ class Attribute extends CI_Model
 		$this->db->where('sale_id');
 		$this->db->where('deleted', 0);
 		$this->db->order_by('definition_name','ASC');
-		
+
 		$results = $this->db->get()->result_array();
 
 		return $this->_to_array($results, 'definition_id');
@@ -207,7 +207,7 @@ class Attribute extends CI_Model
 		$this->db->from('attribute_definitions');
 		$this->db->where('deleted', 0);
 		$this->db->order_by('definition_name','ASC');
-		
+
 		if($groups === FALSE)
 		{
 			$this->db->where_not_in('definition_type',GROUP);
@@ -331,7 +331,7 @@ class Attribute extends CI_Model
 					$this->db->trans_complete();
 				}
 			}
-		
+
 		//To DROPDOWN or CHECKBOX
 			else if($to_type === DROPDOWN)
 			{
